@@ -2,19 +2,17 @@ import React from "react";
 import { Button, Text, View } from "react-native";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { logout } from '../redux/slices/UserSlice';
-import { useNavigation } from "@react-navigation/native";
 
 
-function Profile() {
+export default function Profile({ navigation }) {
     const user = useAppSelector(state => state.user);
     const dispatch = useAppDispatch();
-    const navigation = useNavigation();
 
     const handleLogout = () => {
         dispatch(logout());
         navigation.reset({
             index: 0,
-            routes: [{ name: 'LoginScreen' }],
+            routes: [{ name: 'Login' }],
         });
     };
 
@@ -25,5 +23,3 @@ function Profile() {
         </View>
     );
 }
-
-export default Profile;

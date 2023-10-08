@@ -8,7 +8,12 @@ const Tab = createBottomTabNavigator();
 function BottomTab() {
   return (
     <Tab.Navigator initialRouteName="Home">
-      <Tab.Screen key="Home" name="Home" component={Home} />
+      <Tab.Screen
+        key="Home"
+        name="Home"
+        component={Home}
+        options={{ headerShown: false }}
+      />
       <Tab.Screen key="Profile" name="Profile" component={Profile} />
     </Tab.Navigator>
   );

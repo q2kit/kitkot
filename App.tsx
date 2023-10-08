@@ -14,7 +14,10 @@ function App() {
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <SafeAreaView style={{ flex: 1 }}>
-          <StatusBar />
+          <StatusBar
+            barStyle="light-content"
+            backgroundColor="#000"
+          />
           <Main />
         </SafeAreaView>
       </PersistGate>

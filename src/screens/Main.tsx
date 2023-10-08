@@ -1,30 +1,40 @@
 import { NavigationContainer } from "@react-navigation/native";
 import BottomTab from "./BottomTab";
-import LoginScreen from "./Login";
+import Login from "./Login";
+import Register from "./Register";
+import ResetPassword from "./ResetPassword";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useAppSelector } from "../redux/hooks";
 
 const Stack = createNativeStackNavigator();
 
 
-function Main() {
+export default function Main() {
   const user = useAppSelector(state => state.user);
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={user.accessToken ? "BottomTab" : "LoginScreen"}>
+      <Stack.Navigator initialRouteName={user.accessToken ? "BottomTab" : "Login"}>
         <Stack.Screen
           name="BottomTab"
           component={BottomTab}
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="LoginScreen"
-          component={LoginScreen}
+          name="Login"
+          component={Login}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Register"
+          component={Register}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ResetPassword"
+          component={ResetPassword}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
-
-export default Main;
