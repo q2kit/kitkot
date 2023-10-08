@@ -20,11 +20,9 @@ from google.auth.transport import requests
 
 from .func import (
     validate_email,
-    validate_phone_number,
     validate_username,
     validate_name,
     generate_access_token,
-    send_sms_otp,
     send_mail_otp,
     verify_otp,
     upload_video_to_s3,
@@ -41,21 +39,24 @@ def register(request):
             username = request.POST["username"].lower().strip()
             password = request.POST["password"]
             email = request.POST["email"].lower().strip()
-            phone = request.POST["phone"].strip()
             name = request.POST["name"].strip()
         except Exception:
-            return JsonResponse({"success": False, "message": "Fill all fields"})
+            return JsonResponse({"success": False, "message": "Fill all fields"}, status=400)
 
         validator = [
-            validate_username(username),
-            validate_email(email),
-            validate_phone_number(phone),
-            validate_name(name),
+            (*validate_username(username), "username"),
+            (*validate_name(name), "name"),
+            (*validate_email(email), "email"),
         ]
 
-        for success, message in validator:
+        for success, message, field in validator:
             if not success:
-                return JsonResponse({"success": False, "message": message}, status=400)
+                return JsonResponse({
+                    "success": False,
+                    "fields": {
+                        field: message,
+                    }
+                }, status=400)
 
         check_exists = (
             (
@@ -65,10 +66,6 @@ def register(request):
             (
                 User.objects.filter(email=email).exists(),
                 "User with this email already exists",
-            ),
-            (
-                User.objects.filter(phone=phone).exists(),
-                "User with this phone already exists",
             ),
         )
 
@@ -82,7 +79,6 @@ def register(request):
                 (password + SECRET_KEY).encode("utf-8")
             ).hexdigest(),
             email=email,
-            phone=phone,
             name=name,
             avatar=DEFAULT_AVATAR,
         )
@@ -91,7 +87,6 @@ def register(request):
             "uid": user.pk,
             "username": user.username,
             "email": user.email,
-            "phone": user.phone,
             "name": user.name,
             "avatar": user.avatar or DEFAULT_AVATAR,
             "followers": 0,
@@ -117,7 +112,7 @@ def register(request):
 def login(request):
     if request.method == "POST":
         try:
-            account = request.POST["account"].lower().strip()
+            login_id = request.POST["login_id"].lower().strip()
             password = request.POST["password"]
         except KeyError:
             return JsonResponse({"success": False, "message": "Fill all fields"}, status=400)
@@ -125,15 +120,19 @@ def login(request):
         try:
             user = User.objects.annotate(
                 liked=Count("watched", filter=Q(watched__liked=True))
-            ).get(Q(username=account) | Q(email=account) | Q(phone=account))
+            ).get(Q(username=login_id) | Q(email=login_id))
         except User.DoesNotExist:
-            return JsonResponse({"success": False, "message": "User not found"}, status=401)
+            return JsonResponse({
+                "success": False,
+                "fields": {
+                    "password": "Wrong password",
+                }
+            }, status=401)
 
         userJSON = {
             "uid": user.pk,
             "username": user.username,
             "email": user.email,
-            "phone": user.phone,
             "name": user.name,
             "avatar": user.avatar or DEFAULT_AVATAR,
             "followers": user.followers.count(),
@@ -157,7 +156,12 @@ def login(request):
                 status=200,
             )
         else:
-            return JsonResponse({"success": False, "message": "Wrong password"}, status=401)
+            return JsonResponse({
+                "success": False,
+                "fields": {
+                    "password": "Wrong password",
+                }
+            }, status=401)
 
     return JsonResponse({"success": False, "message": "Method not allowed"}, status=405)
 
@@ -183,7 +187,6 @@ def google_auth(request):
                     "uid": user.pk,
                     "username": user.username,
                     "email": user.email,
-                    "phone": user.phone,
                     "name": user.name,
                     "avatar": user.avatar or DEFAULT_AVATAR,
                     "followers": user.followers.count(),
@@ -220,7 +223,6 @@ def google_auth(request):
                     "uid": user.pk,
                     "username": user.username,
                     "email": user.email,
-                    "phone": user.phone,
                     "name": user.name,
                     "avatar": user.avatar or DEFAULT_AVATAR,
                     "followers": 0,
@@ -246,18 +248,16 @@ def google_auth(request):
 def reset_password(request):
     if request.method == "POST":
         try:
-            email_or_phone = request.POST["email_or_phone"].lower().strip()
+            email = request.POST["email"].lower().strip()
         except KeyError:
             return JsonResponse({"success": False, "message": "Fill all fields"}, status=400)
 
         if "otp" in request.POST:  # step 2
             otp = request.POST["otp"]
-            if verify_otp(email_or_phone, otp):
+            if verify_otp(email, otp):
                 try:
                     new_password = request.POST["new_password"]
-                    user = User.objects.get(
-                        Q(email=email_or_phone) | Q(phone=email_or_phone)
-                    )
+                    user = User.objects.get(email=email)
                     user.password = hashlib.sha512(
                         (new_password + SECRET_KEY).encode("utf-8")
                     ).hexdigest()
@@ -270,19 +270,17 @@ def reset_password(request):
 
         else:  # step 1
             try:
-                user = User.objects.get(
-                    Q(email=email_or_phone) | Q(phone=email_or_phone)
-                )
+                user = User.objects.get(email=email)
             except User.DoesNotExist:
                 return JsonResponse(
                     {
                         "success": False,
-                        "message": "User not found with this email or phone",
+                        "message": "User not found with this email",
                     },
                     status=404,
                 )
 
-            if cache.get(email_or_phone):
+            if cache.get(email):
                 return JsonResponse(
                     {
                         "success": False,
@@ -290,12 +288,8 @@ def reset_password(request):
                     },
                     status=401,
                 )
-            if user.email == email_or_phone:
-                t = threading.Thread(target=send_mail_otp, args=(user.email,))
-                t.start()
-            else:
-                t = threading.Thread(target=send_sms_otp, args=(user.phone,))
-                t.start()
+            t = threading.Thread(target=send_mail_otp, args=(user.email,))
+            t.start()
 
             return JsonResponse(
                 {
@@ -316,7 +310,6 @@ def edit_profile(request):
             name = request.POST.get("name", "").strip()
             username = request.POST.get("username", "").strip()
             email = request.POST.get("email", "").strip()
-            phone = request.POST.get("phone", "").strip()
             avatar = request.FILES.get("avatar", None)
             new_password = request.POST.get("new_password", "").strip()
         except KeyError:
@@ -325,7 +318,6 @@ def edit_profile(request):
         validator = [
             validate_username(username) if username else (True, ""),
             validate_email(email) if email else (True, ""),
-            validate_phone_number(phone) if phone else (True, ""),
             validate_name(name) if name else (True, ""),
         ]
 
@@ -343,10 +335,6 @@ def edit_profile(request):
             (
                 User.objects.filter(email=email).exclude(pk=request.user.pk).exists(),
                 "User with this email already exists",
-            ),
-            (
-                User.objects.filter(phone=phone).exclude(pk=request.user.pk).exists(),
-                "User with this phone already exists",
             ),
         ]
 
@@ -371,8 +359,6 @@ def edit_profile(request):
             request.user.username = username
         if email:
             request.user.email = email
-        if phone:
-            request.user.phone = phone
         if avatar:
             request.user.avatar = upload_file_to_cloud(avatar)
         request.user.save()
@@ -385,7 +371,6 @@ def edit_profile(request):
                     "name": request.user.name,
                     "username": request.user.username,
                     "email": request.user.email,
-                    "phone": request.user.phone,
                     "avatar": request.user.avatar,
                 },
             },
@@ -407,7 +392,6 @@ def get_user_info(request, uid):
                 "name": user.name,
                 "username": user.username,
                 "email": user.email,
-                "phone": user.phone,
                 "avatar": user.avatar or DEFAULT_AVATAR,
                 "is_premium": user.is_premium,
                 "videos": user.videos.count(),

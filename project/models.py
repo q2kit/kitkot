@@ -6,10 +6,9 @@ class User(models.Model):
     password = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     email = models.EmailField(max_length=255)
-    phone = models.CharField(max_length=255, null=True, blank=True)
     avatar = models.CharField(max_length=255, null=True, blank=True)
     following = models.ManyToManyField("self", symmetrical=False, related_name="followers", blank=True)
-    amount = models.IntegerField(default=0)
+    is_premium = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -21,7 +20,7 @@ class Video(models.Model):
     link = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     thumbnail = models.CharField(max_length=255, null=True, blank=True)
-    price = models.IntegerField(default=0)
+    is_premium = models.BooleanField(default=False)
     
     def __str__(self):
         return str(self.id) + " - " + self.description + "(" + self.owner.name + ")"

@@ -15,13 +15,6 @@ import boto3
 from uuid import uuid4
 
 
-def validate_phone_number(phone_number):
-    if re.match(r"^0\d{9}$", phone_number):
-        return True, ""
-    else:
-        return False, "Invalid phone number, should be 10 digits and start with 0"
-
-
 def validate_email(email):
     if re.match(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", email):
         return True, ""
@@ -41,21 +34,6 @@ def validate_name(name):
         return True, ""
     else:
         return False, "Invalid name, should only contain letters, numbers and _"
-
-
-def send_sms_otp(phone_number):
-    otp = str(random.randint(100000, 999999))
-    cache.set(phone_number, otp, 600)
-
-    SMS_OTP_TOKEN = os.environ.get("SMS_OTP_TOKEN")
-
-    url = f"https://api.speedsms.vn/index.php/sms/send?access-token={SMS_OTP_TOKEN}&to={phone_number}&content={otp}&sms-type=4"
-    response = requests.get(url).json()
-
-    if response["status"] == "success":
-        ...
-    else:
-        cache.delete(phone_number)
 
 
 def send_mail_otp(email):
@@ -95,9 +73,9 @@ def send_mail_otp(email):
         cache.delete(email)
 
 
-def verify_otp(email_or_phone, otp):
-    if cache.get(email_or_phone) == otp:
-        cache.delete(email_or_phone)
+def verify_otp(email, otp):
+    if cache.get(email) == otp:
+        cache.delete(email)
         return True
     else:
         return False
