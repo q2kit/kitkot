@@ -3,6 +3,7 @@ import BottomTab from "./BottomTab";
 import Login from "./Login";
 import Register from "./Register";
 import ResetPassword from "./ResetPassword";
+import Settings from "./Settings";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useAppSelector } from "../redux/hooks";
 
@@ -13,7 +14,9 @@ export default function Main() {
   const user = useAppSelector(state => state.user);
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={user.accessToken ? "BottomTab" : "Login"}>
+      <Stack.Navigator
+        initialRouteName={user.accessToken ? "BottomTab" : "Login"}
+      >
         <Stack.Screen
           name="BottomTab"
           component={BottomTab}
@@ -32,6 +35,11 @@ export default function Main() {
         <Stack.Screen
           name="ResetPassword"
           component={ResetPassword}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Settings"
+          component={Settings}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

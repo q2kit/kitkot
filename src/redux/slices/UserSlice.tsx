@@ -1,9 +1,14 @@
-import {createSlice} from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 
 interface UserState {
   accessToken: string | null;
   name?: string;
   id?: number;
+  username?: string;
+  avatar?: string;
+  following?: number;
+  followers?: number;
+  likes?: number;
 }
 
 const initState: UserState = {
@@ -15,18 +20,13 @@ const UserSlice = createSlice({
   initialState: initState,
   reducers: {
     setUser: (state, action) => {
-      return {...state, ...action.payload};
+      return { ...state, ...action.payload };
     },
-    logout: state => {
-      return {
-        ...state,
-        accessToken: null,
-        id: undefined,
-        name: undefined,
-      };
+    logout: () => {
+      return initState;
     },
   },
 });
 
-export const {setUser, logout} = UserSlice.actions;
+export const { setUser, logout } = UserSlice.actions;
 export default UserSlice;

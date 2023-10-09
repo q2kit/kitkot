@@ -3,18 +3,19 @@ import { TouchableOpacity, StyleSheet, View } from 'react-native'
 import Video from 'react-native-video'
 
 
-export default function VideoPlayer(video) {
+export default function VideoPlayer({video}) {
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.button}>
+      {/* <TouchableOpacity style={styles.button}> */}
         <Video
+          // ref={videoRef}
           source={{ uri: "https://drive.vnsvs.net/ssstik.io_1694951973186.mp4" }}
           style={styles.video}
           controls={false}
           resizeMode="cover"
           repeat={true}
         />
-      </TouchableOpacity>
+      {/* </TouchableOpacity> */}
     </View>
   )
 }
