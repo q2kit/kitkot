@@ -1,5 +1,10 @@
 import React, { useState } from 'react'
-import { TouchableOpacity, StyleSheet, View, ToastAndroid } from 'react-native'
+import {
+  TouchableOpacity,
+  StyleSheet,
+  View,
+  ToastAndroid,
+} from 'react-native'
 import { Text } from 'react-native-paper'
 import Background from '../components/Background'
 import Logo from '../components/Logo'
@@ -88,6 +93,7 @@ export default function Login({ navigation }) {
         onChangeText={(text) => setPassword({ value: text, error: '' })}
         error={!!password.error}
         errorText={password.error}
+        autoCapitalize="none"
         secureTextEntry={!showPassword}
         onIconPress={toggleShowPassword}
       />

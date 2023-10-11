@@ -96,6 +96,7 @@ export default function Register({ navigation }) {
         onChangeText={(text) => setUsername({ value: text, error: '' })}
         error={!!username.error}
         errorText={username.error}
+        autoCapitalize="none"
       />
       <TextInput
         label="Password"
@@ -106,6 +107,7 @@ export default function Register({ navigation }) {
         errorText={password.error}
         secureTextEntry={!showPassword}
         onIconPress={toggleShowPassword}
+        autoCapitalize="none"
       />
       <TextInput
         label="Name"
@@ -114,6 +116,7 @@ export default function Register({ navigation }) {
         onChangeText={(text) => setName({ value: text, error: '' })}
         error={!!name.error}
         errorText={name.error}
+        autoCapitalize="words"
       />
       <TextInput
         label="Email"

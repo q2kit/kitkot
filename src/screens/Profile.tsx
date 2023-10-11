@@ -17,30 +17,7 @@ const FirstRoute = () => (
 );
 
 const SecondRoute = () => (
-    <ScrollView
-        style={{ flex: 1, backgroundColor: 'gray' }}
-        showsVerticalScrollIndicator={false}
-        nestedScrollEnabled={true}
-    >
-        <Text>svsdkfgbkhjasgkdjhfgk</Text>
-        <Text>svsdkfgbkhjasgkdjhfgk</Text>
-        <Text>svsdkfgbkhjasgkdjhfgk</Text>
-        <Text>svsdkfgbkhjasgkdjhfgk</Text>
-        <Text>svsdkfgbkhjasgkdjhfgk</Text>
-        <Text>svsdkfgbkhjasgkdjhfgk</Text>
-        <Text>svsdkfgbkhjasgkdjhfgk</Text>
-        <Text>svsdkfgbkhjasgkdjhfgk</Text>
-        <Text>svsdkfgbkhjasgkdjhfgk</Text>
-        <Text>svsdkfgbkhjasgkdjhfgk</Text>
-        <Text>svsdkfgbkhjasgkdjhfgk</Text>
-        <Text>svsdkfgbkhjasgkdjhfgk</Text>
-        <Text>svsdkfgbkhjasgkdjhfgk</Text>
-        <Text>svsdkfgbkhjasgkdjhfgk</Text>
-        <Text>svsdkfgbkhjasgkdjhfgk</Text>
-        <Text>svsdkfgbkhjasgkdjhfgk</Text>
-        <Text>svsdkfgbkhjasgkdjhfgk</Text>
-        <Text>svsdkfgbkhjasgkdjhfgk</Text>
-        <Text>svsdkfgbkhjasgkdjhfgk</Text>
+    <ScrollView>
         <Text>svsdkfgbkhjasgkdjhfgk</Text>
         <Text>svsdkfgbkhjasgkdjhfgk</Text>
         <Text>svsdkfgbkhjasgkdjhfgk</Text>
@@ -74,8 +51,7 @@ const renderScene = SceneMap({
 function renderTabBar(props) {
     const tabBarStyles = StyleSheet.create({
         tabContainer: {
-            height: 35,
-            // backgroundColor: 'transparent',
+            height: 40,
             backgroundColor: 'rgba(255, 255, 255, 0)',
             width: '90%',
             marginLeft: '5%',
@@ -146,10 +122,7 @@ export default function Profile({ navigation }) {
 
     const user = useAppSelector(state => state.user);
     const test_avatar = "https://static.vecteezy.com/system/resources/previews/008/442/086/large_2x/illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg";
-
-
     const layout = useWindowDimensions();
-
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([
         { key: 'first' },
@@ -159,71 +132,64 @@ export default function Profile({ navigation }) {
     ]);
 
     return (
-        <ScrollView
-            style={{ flex: 1 }}
-            contentContainerStyle={{ flexGrow: 1 }}
-            showsVerticalScrollIndicator={false}
-            nestedScrollEnabled={true}
-            onScroll={(e) => { console.log(e.nativeEvent.contentOffset) }}
-        >
-            <View style={styles.container}>
-                <IconButton
-                    icon={require('../assets/settings.png')}
-                    size={25}
-                    onPress={() => navigation.navigate('Settings')}
-                    style={styles.settings}
-                />
-                <Image
-                    source={{ uri: user.avatar || test_avatar }}
-                    style={styles.avatar}
-                />
-                <Text style={styles.name}>
-                    Họ Và Tên
-                </Text>
-                <Text style={styles.username}>
-                    @quan
-                </Text>
-                <View style={styles.counterContainer}>
-                    <View style={styles.counterBox}>
-                        <Text style={styles.counter}>
-                            {convertToK(1000)}
-                        </Text>
-                        <Text style={styles.counterLabel}>
-                            Following
-                        </Text>
-                    </View>
-                    <Text>|</Text>
-                    <View style={styles.counterBox}>
-                        <Text style={styles.counter}>
-                            {convertToK(201700)}
-                        </Text>
-                        <Text style={styles.counterLabel}>
-                            Followers
-                        </Text>
-                    </View>
-                    <Text>|</Text>
-                    <View style={styles.counterBox}>
-                        <Text style={styles.counter}>
-                            {convertToK(3000321320)}
-                        </Text>
-                        <Text style={styles.counterLabel}>
-                            Likes
-                        </Text>
-                    </View>
+        <View style={styles.container}>
+            <IconButton
+                icon={require('../assets/settings.png')}
+                size={25}
+                onPress={() => navigation.navigate('Settings')}
+                style={styles.settings}
+            />
+            <Image
+                source={{ uri: user.avatar || test_avatar }}
+                style={styles.avatar}
+            />
+            <Text style={styles.name}>
+                Họ Và Tên
+            </Text>
+            <Text style={styles.username}>
+                @quan
+            </Text>
+            <View style={styles.counterContainer}>
+                <View style={styles.counterBox}>
+                    <Text style={styles.counter}>
+                        {convertToK(1000)}
+                    </Text>
+                    <Text style={styles.counterLabel}>
+                        Following
+                    </Text>
                 </View>
-                <TabView
-                    style={{ flex: 1, width: '100%', height: 1000, backgroundColor: '#eee' }}
-                    navigationState={{ index, routes }}
-                    renderScene={renderScene}
-                    onIndexChange={setIndex}
-                    initialLayout={{ width: layout.width }}
-                    renderTabBar={renderTabBar}
-                    pressColor={'black'}
-                    bounces={true}
-                />
-                <View style={{ height: 1000 }}></View>
+                <Text>|</Text>
+                <View style={styles.counterBox}>
+                    <Text style={styles.counter}>
+                        {convertToK(201700)}
+                    </Text>
+                    <Text style={styles.counterLabel}>
+                        Followers
+                    </Text>
+                </View>
+                <Text>|</Text>
+                <View style={styles.counterBox}>
+                    <Text style={styles.counter}>
+                        {convertToK(3000321320)}
+                    </Text>
+                    <Text style={styles.counterLabel}>
+                        Likes
+                    </Text>
+                </View>
             </View>
-        </ScrollView>
+            <TabView
+                style={{
+                    flex: 1,
+                    width: '100%',
+                    backgroundColor: '#eee'
+                }}
+                navigationState={{ index, routes }}
+                renderScene={renderScene}
+                onIndexChange={setIndex}
+                initialLayout={{ width: layout.width }}
+                renderTabBar={renderTabBar}
+            />
+        </View>
     );
 }
 
