@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import {
-  TouchableOpacity,
+  TouchableWithoutFeedback,
   StyleSheet,
   View,
   ToastAndroid,
@@ -98,18 +98,18 @@ export default function Login({ navigation }) {
         onIconPress={toggleShowPassword}
       />
       <View style={styles.forgotPassword}>
-        <TouchableOpacity onPress={() => navigation.navigate('ResetPassword')}>
+        <TouchableWithoutFeedback onPress={() => navigation.navigate('ResetPassword')}>
           <Text style={styles.forgot}>Forgot your password?</Text>
-        </TouchableOpacity>
+        </TouchableWithoutFeedback>
       </View>
       <Button mode="contained" onPress={onLoginPressed}>
         Login
       </Button>
       <View style={styles.row}>
         <Text>Don't have an account? </Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+        <TouchableWithoutFeedback onPress={() => navigation.navigate('Register')}>
           <Text style={styles.link}>Sign up</Text>
-        </TouchableOpacity>
+        </TouchableWithoutFeedback>
       </View>
     </Background>
   )

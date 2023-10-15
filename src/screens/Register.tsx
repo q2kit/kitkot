@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, StyleSheet, TouchableOpacity, ToastAndroid } from 'react-native'
+import { View, StyleSheet, TouchableWithoutFeedback, ToastAndroid } from 'react-native'
 import { Text } from 'react-native-paper'
 import Background from '../components/Background'
 import Logo from '../components/Logo'
@@ -139,9 +139,9 @@ export default function Register({ navigation }) {
       </Button>
       <View style={styles.row}>
         <Text>Already have an account? </Text>
-        <TouchableOpacity onPress={navigation.goBack}>
+        <TouchableWithoutFeedback onPress={navigation.goBack}>
           <Text style={styles.link}>Login</Text>
-        </TouchableOpacity>
+        </TouchableWithoutFeedback>
       </View>
     </Background>
   )

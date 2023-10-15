@@ -1,32 +1,30 @@
 import React from 'react'
 import {
-  TouchableOpacity,
+  TouchableWithoutFeedback,
   StyleSheet,
-  View,
   Image,
   Modal,
+  View,
 } from 'react-native'
 
-
-export default function VideoThumbnail({ video }) {
+export default function VideoThumbnail({ video, onPress }) {
   return (
-    <TouchableOpacity style={styles.container}>
+    <TouchableWithoutFeedback onPress={onPress}>
       <Image
         source={{ uri: video.thumbnail }}
         style={styles.thumbnail}
-        resizeMode="cover"
+        resizeMode="center"
       />
-    </TouchableOpacity>
+    </TouchableWithoutFeedback>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    width: '30%',
-    height: '30%',
-    backgroundColor: '#000',
-  },
   thumbnail: {
-    flex: 1,
+    width: '32.7%',
+    height: 200,
+    backgroundColor: '#000',
+    marginTop: 2,
+    marginLeft: '0.5%'
   },
 })

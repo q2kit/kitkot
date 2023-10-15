@@ -20,7 +20,9 @@ export default function Main() {
         <Stack.Screen
           name="BottomTab"
           component={BottomTab}
-          options={{ headerShown: false }}
+          options={{
+            headerShown: false,
+          }}
         />
         <Stack.Screen
           name="Login"

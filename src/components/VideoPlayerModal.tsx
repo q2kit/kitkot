@@ -1,19 +1,19 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react'
 import {
-  TouchableWithoutFeedback,
-  StyleSheet,
-  View,
-  Text,
   Image,
   StatusBar,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+  useWindowDimensions
 } from 'react-native'
 import { IconButton } from "react-native-paper";
-import Video from 'react-native-video';
-import { useWindowDimensions } from 'react-native';
-import { State, TapGestureHandler } from 'react-native-gesture-handler';
+import Video from 'react-native-video'
 import { convertToK, isLongDescription } from '../utils/Functions';
 
-export default function VideoPlayer({ video }) {
+
+export default function VideoPlayerModal({ video, onClose }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const layout = useWindowDimensions();
   const tabBarHeight = 50;
@@ -32,7 +32,7 @@ export default function VideoPlayer({ video }) {
   return (
     <View>
       <TouchableWithoutFeedback onPressOut={() => setIsPlaying(!isPlaying)}>
-        <View style={[styles.container, { width: layout.width, height: layout.height - tabBarHeight - statusBarHeight }]}>
+        <View style={styles.container}>
           <Video
             source={video}
             style={styles.video}
@@ -51,6 +51,12 @@ export default function VideoPlayer({ video }) {
           )}
         </View>
       </TouchableWithoutFeedback>
+      <IconButton
+        icon={require('../assets/close.png')}
+        size={25}
+        onPress={onClose}
+        style={styles.closeBtn}
+      />
       <View style={styles.videoInfo}>
         <Text style={styles.ownerName}>{video.owner.name}</Text>
         <Text style={styles.description}>
@@ -58,14 +64,14 @@ export default function VideoPlayer({ video }) {
         </Text>
         <TouchableWithoutFeedback onPress={onMorePress}>
           <Text
-            style={[styles.descriptionMore, { display: isLongDescription(video.description).isLong ? 'flex' : 'none' }]}
+            style={[styles.descriptionMore, { opacity: isLongDescription(video.description).isLong ? 1 : 0 }]}
           >
             {isMorePressed ? 'Less' : 'More'}
           </Text>
         </TouchableWithoutFeedback>
       </View>
       <Image
-        source={{ uri: video.owner.avatar }}
+        source={{ uri: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B" }}
         style={styles.ownerAvatar}
       />
       <IconButton
@@ -89,10 +95,17 @@ export default function VideoPlayer({ video }) {
 
 const styles = StyleSheet.create({
   container: {
+    width: '100%',
+    height: '100%',
     backgroundColor: '#000',
   },
   video: {
     flex: 1,
+  },
+  closeBtn: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
   },
   playBtn: {
     width: 70,
@@ -139,7 +152,7 @@ const styles = StyleSheet.create({
   },
   likeBtn: {
     position: 'absolute',
-    top: 410,
+    top: 430,
     right: 5,
   },
   likeCount: {
@@ -147,7 +160,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     position: 'absolute',
     textShadowColor: '#000',
-    top: 458,
+    top: 478,
     right: 20,
     fontWeight: 'bold',
     width: 35,
@@ -155,7 +168,7 @@ const styles = StyleSheet.create({
   },
   showCommentBtn: {
     position: 'absolute',
-    top: 480,
+    top: 500,
     right: 5,
   },
   commentCount: {
@@ -165,7 +178,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     position: 'absolute',
     textShadowColor: '#000',
-    top: 528,
+    top: 548,
     right: 20,
     textAlign: 'center',
   },

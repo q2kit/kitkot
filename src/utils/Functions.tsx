@@ -24,3 +24,16 @@ export function convertToK(num: number) {
         return `${num}`;
     }
 }
+
+export function isLongDescription(description: string) {
+    if (description.length > 40) {
+        return {
+            isLong: true,
+            description: description.substring(0, 40).trim() + '...',
+        }
+    }
+    return {
+        isLong: false,
+        description: description,
+    }
+}
