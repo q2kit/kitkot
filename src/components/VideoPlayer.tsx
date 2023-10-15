@@ -66,7 +66,10 @@ export default function VideoPlayer({ video }) {
           </Text>
         </TouchableWithoutFeedback>
       </View>
-      <TouchableWithoutFeedback onPress={() => setProfileModalVisible(true)}>
+      <TouchableWithoutFeedback onPress={() => {
+        setProfileModalVisible(true);
+        setIsPlaying(false);
+      }}>
         <Image
           source={{ uri: video.owner.avatar }}
           style={styles.ownerAvatar}

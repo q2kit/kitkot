@@ -2,7 +2,6 @@ import React from 'react'
 import {
   FlatList,
   Image,
-  Modal,
   StyleSheet,
   Text,
   View,
@@ -11,6 +10,7 @@ import { convertToK } from '../utils/Functions';
 import { Button, IconButton } from 'react-native-paper';
 import VideoThumbnail from './VideoThumbnail';
 import VideoPlayerModal from './VideoPlayerModal';
+import Modal from 'react-native-modal';
 
 const getUserInfo = (id: number) => {
   return {
@@ -164,10 +164,11 @@ export default function ProfileModal({ user_id, visible, onClose }) {
 
   return (
     <Modal
-      visible={visible}
-      animationType='slide'
-      transparent={true}
-      onRequestClose={onClose}
+      isVisible={visible}
+      animationIn={'slideInRight'}
+      animationOut={'slideOutRight'}
+      onBackButtonPress={onClose}
+      style={{ flex: 1, margin: 0 }}
     >
       <View style={styles.container}>
         <IconButton
