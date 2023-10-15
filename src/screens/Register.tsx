@@ -21,10 +21,6 @@ export default function Register({ navigation }) {
   const [showPassword, setShowPassword] = useState(false)
   const dispatch = useAppDispatch();
 
-  const toggleShowPassword = () => {
-    setShowPassword(!showPassword);
-  };
-
   const onSignUpPressed = () => {
     if (username.value.length === 0) {
       setUsername({ ...username, error: 'Username is required' })
@@ -106,7 +102,7 @@ export default function Register({ navigation }) {
         error={!!password.error}
         errorText={password.error}
         secureTextEntry={!showPassword}
-        onIconPress={toggleShowPassword}
+        onIconPress={() => setShowPassword(!showPassword)}
         autoCapitalize="none"
       />
       <TextInput

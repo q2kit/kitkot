@@ -6,8 +6,7 @@ function joinPaths(base: string, path: string): string {
 }
 
 
-const HOST_API = "https://kitkot.q2k.dev/api";
-const LOGIN_URL = joinPaths(HOST_API, "login/");
-const REGISTER_URL = joinPaths(HOST_API, "register/");
-
-export { LOGIN_URL, REGISTER_URL };
+export const HOST_API = "https://kitkot.q2k.dev/api";
+export const LOGIN_URL = joinPaths(HOST_API, "login/");
+export const REGISTER_URL = joinPaths(HOST_API, "register/");
+export const RESET_PASSWORD_URL = joinPaths(HOST_API, "reset-password/");
