@@ -12,6 +12,7 @@ import Video from 'react-native-video';
 import { useWindowDimensions } from 'react-native';
 import { convertToK, isLongDescription } from '../utils/Functions';
 import CommentModal from './CommentModal';
+import ProfileModal from './ProfileModal';
 
 export default function VideoPlayer({ video }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -21,7 +22,8 @@ export default function VideoPlayer({ video }) {
   const [liked, setLiked] = useState(video.liked);
   const [likes, setLikes] = useState(video.likes);
   const [isMorePressed, setIsMorePressed] = useState(false);
-  const [isModalVisible, setModalVisible] = useState(false);
+  const [isCommentModalVisible, setCommentModalVisible] = useState(false);
+  const [isProfileModalVisible, setProfileModalVisible] = useState(false);
   const onLikePress = () => {
     setLikes(likes + (liked ? -1 : 1));
     setLiked(!liked);
@@ -64,9 +66,16 @@ export default function VideoPlayer({ video }) {
           </Text>
         </TouchableWithoutFeedback>
       </View>
-      <Image
-        source={{ uri: video.owner.avatar }}
-        style={styles.ownerAvatar}
+      <TouchableWithoutFeedback onPress={() => setProfileModalVisible(true)}>
+        <Image
+          source={{ uri: video.owner.avatar }}
+          style={styles.ownerAvatar}
+        />
+      </TouchableWithoutFeedback>
+      <ProfileModal
+        visible={isProfileModalVisible}
+        onClose={() => setProfileModalVisible(false)}
+        user_id={video.owner.id}
       />
       <IconButton
         onPress={onLikePress}
@@ -77,7 +86,7 @@ export default function VideoPlayer({ video }) {
       />
       <Text style={styles.likeCount}>{convertToK(likes)}</Text>
       <IconButton
-        onPress={() => setModalVisible(true)}
+        onPress={() => setCommentModalVisible(true)}
         icon={require('../assets/comment.png')}
         size={35}
         style={styles.showCommentBtn}
@@ -85,8 +94,8 @@ export default function VideoPlayer({ video }) {
       />
       <Text style={styles.commentCount}>{convertToK(video.comments)}</Text>
       <CommentModal
-        visible={isModalVisible}
-        onClose={() => setModalVisible(false)}
+        visible={isCommentModalVisible}
+        onClose={() => setCommentModalVisible(false)}
         video={video}
       />
     </View>

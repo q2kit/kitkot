@@ -1,8 +1,10 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Home from './Home';
 import { IconButton } from 'react-native-paper'
+import Home from './Home';
 import Profile from './Profile';
+import Chat from './Chat';
+import { Image } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 
@@ -11,11 +13,17 @@ function BottomTab() {
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={{
-        tabBarActiveTintColor: 'blue',
-        tabBarInactiveTintColor: 'black',
+        tabBarActiveTintColor: '#fff',
+        tabBarInactiveTintColor: '#aaa',
         tabBarHideOnKeyboard: true,
         tabBarStyle: {
           height: 50,
+          backgroundColor: '#1e1e1e',
+          borderBlockColor: '#000',
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          marginBottom: 3,
         },
       }}
     >
@@ -25,10 +33,68 @@ function BottomTab() {
         component={Home}
         options={{
           headerShown: false,
-          tabBarIcon: () => (
+          title: 'Home',
+          tabBarIcon: ({ color }) => (
             <IconButton
               icon={require('../assets/home.png')}
               size={20}
+              style={{ marginTop: 10 }}
+              iconColor={color}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        key="Explore"
+        name="Explore"
+        component={Chat}
+        options={{
+          headerShown: false,
+          title: 'Explore',
+          tabBarIcon: ({ color }) => (
+            <IconButton
+              icon={require('../assets/explore.png')}
+              size={20}
+              style={{ marginTop: 10 }}
+              iconColor={color}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        key="Add"
+        name="Add"
+        component={Chat}
+        options={{
+          headerShown: false,
+          title: '',
+          tabBarIcon: ({ color }) => (
+            <Image
+              source={require('../assets/add.png')}
+              style={{
+                width: 35,
+                height: 35,
+                marginTop: 20,
+                borderRadius: 20,
+                backgroundColor: '#fff',
+              }}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        key="Chat"
+        name="Chat"
+        component={Chat}
+        options={{
+          headerShown: false,
+          title: 'Inbox',
+          tabBarIcon: ({ color }) => (
+            <IconButton
+              icon={require('../assets/chat.png')}
+              size={20}
+              style={{ marginTop: 10 }}
+              iconColor={color}
             />
           ),
         }}
@@ -39,10 +105,12 @@ function BottomTab() {
         component={Profile}
         options={{
           headerShown: false,
-          tabBarIcon: () => (
+          tabBarIcon: ({ color }) => (
             <IconButton
               icon={require('../assets/profile.png')}
               size={20}
+              style={{ marginTop: 10 }}
+              iconColor={color}
             />
           ),
         }}

@@ -27,7 +27,9 @@ const getData = (routeKey: string) => {
       },
       liked: true,
       likes: 100,
+      views: 122200000,
       comments: 10200,
+      is_premium: true,
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget aliquam ultricies, nunc nisl ultricies nunc, quis ultri",
     },
     {
@@ -40,6 +42,7 @@ const getData = (routeKey: string) => {
       },
       liked: true,
       likes: 100,
+      views: 1000,
       comments: 10200,
       description: "Example description",
     },
@@ -53,7 +56,9 @@ const getData = (routeKey: string) => {
       },
       liked: true,
       likes: 100,
+      views: 1000,
       comments: 10200,
+      is_premium: true,
       description: "Example description",
     },
     {
@@ -66,6 +71,7 @@ const getData = (routeKey: string) => {
       },
       liked: true,
       likes: 100,
+      views: 1000,
       comments: 10200,
       description: "Example description",
     },
@@ -75,8 +81,17 @@ const getData = (routeKey: string) => {
 const RouteRender = (props) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [videoModal, setVideoModal] = useState(null);
+  const styles = StyleSheet.create({
+    list: {
+      width: '100%',
+      height: '100%',
+      backgroundColor: '#0a0a0a',
+    },
+  });
+
   return (<View>
     <FlatList
+      style={styles.list}
       data={getData(props.route.key)}
       numColumns={3}
       key={3}
@@ -111,7 +126,7 @@ function renderTabBar(props) {
   const tabBarStyles = StyleSheet.create({
     tabContainer: {
       height: 40,
-      backgroundColor: 'rgba(255, 255, 255, 0)',
+      backgroundColor: '#000',
       width: '90%',
       marginLeft: '5%',
       shadowOffset: { height: 0, width: 0 },
@@ -124,55 +139,60 @@ function renderTabBar(props) {
     },
     tab: {
       top: -4,
-      height: 25,
+      height: 30,
       paddingLeft: 10,
       paddingRight: 10,
     },
     activeTab: {
       borderBottomWidth: 2,
-      borderBottomColor: '#000',
+      borderBottomColor: '#fff',
     },
-    img: {
+    icon: {
       width: 20,
       height: 20,
+      marginTop: 0,
     }
   });
   return (
-    <TabBar
-      {...props}
-      indicatorStyle={tabBarStyles.indicator}
-      style={tabBarStyles.tabContainer}
-      renderIcon={({ route, focused, color }) => {
-        const sourceMap = {
-          first: focused
-            ? require('../assets/myvideo-active.png')
-            : require('../assets/myvideo-active.png'),
-          second: focused
-            ? require('../assets/myvideo-inactive.png')
-            : require('../assets/myvideo-inactive.png'),
-          third: focused
-            ? require('../assets/myvideo-inactive.png')
-            : require('../assets/myvideo-inactive.png'),
-          fourth: focused
-            ? require('../assets/myvideo-inactive.png')
-            : require('../assets/myvideo-inactive.png'),
-        };
-        const source = sourceMap[route.key];
-        return (
-          <View
-            style={[
-              tabBarStyles.tab,
-              focused ? tabBarStyles.activeTab : null,
-            ]}
-          >
-            <Image
-              source={source}
-              style={tabBarStyles.img}
-            />
-          </View>
-        )
-      }}
-    />
+    <View style={{ backgroundColor: '#000' }}>
+      <TabBar
+        {...props}
+        indicatorStyle={tabBarStyles.indicator}
+        style={tabBarStyles.tabContainer}
+        renderIcon={({ route, focused, color }) => {
+          const sourceMap = {
+            first: focused
+              ? require('../assets/myvideo-active.png')
+              : require('../assets/myvideo-active.png'),
+            second: focused
+              ? require('../assets/myvideo-inactive.png')
+              : require('../assets/myvideo-inactive.png'),
+            third: focused
+              ? require('../assets/myvideo-inactive.png')
+              : require('../assets/myvideo-inactive.png'),
+            fourth: focused
+              ? require('../assets/myvideo-inactive.png')
+              : require('../assets/myvideo-inactive.png'),
+          };
+          const source = sourceMap[route.key];
+          return (
+            <View
+              style={[
+                tabBarStyles.tab,
+                focused ? tabBarStyles.activeTab : null,
+              ]}
+            >
+              <IconButton
+                icon={source}
+                style={tabBarStyles.icon}
+                iconColor={focused ? '#fff' : '#999'}
+                size={20}
+              />
+            </View>
+          )
+        }}
+      />
+    </View>
   );
 }
 
@@ -197,14 +217,15 @@ export default function Profile({ navigation }) {
         size={25}
         onPress={() => navigation.navigate('Settings')}
         style={styles.settings}
-      />
-      <Image
-        source={{ uri: user.avatar || test_avatar }}
-        style={styles.avatar}
+        iconColor="#fff"
       />
       <Text style={styles.name}>
         Họ Và Tên
       </Text>
+      <Image
+        source={{ uri: user.avatar || test_avatar }}
+        style={styles.avatar}
+      />
       <Text style={styles.username}>
         @quan
       </Text>
@@ -217,7 +238,7 @@ export default function Profile({ navigation }) {
             Following
           </Text>
         </View>
-        <Text>|</Text>
+        <Text style={styles.splitLine}>|</Text>
         <View style={styles.counterBox}>
           <Text style={styles.counter}>
             {convertToK(201700)}
@@ -226,7 +247,7 @@ export default function Profile({ navigation }) {
             Followers
           </Text>
         </View>
-        <Text>|</Text>
+        <Text style={styles.splitLine}>|</Text>
         <View style={styles.counterBox}>
           <Text style={styles.counter}>
             {convertToK(3000321320)}
@@ -256,7 +277,7 @@ const styles = StyleSheet.create({
   container: {
     display: 'flex',
     flex: 1,
-    backgroundColor: '#eee',
+    backgroundColor: '#000',
     width: '100%',
     flexDirection: 'column',
     color: '#000',
@@ -267,22 +288,24 @@ const styles = StyleSheet.create({
     top: 0,
     right: 0,
   },
+  name: {
+    marginTop: 5,
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   avatar: {
     alignItems: 'center',
-    marginTop: 40,
-    width: 130,
-    height: 130,
+    marginTop: 20,
+    width: 110,
+    height: 110,
     borderRadius: 100,
   },
-  name: {
-    marginTop: 7,
-    color: '#000',
-    fontSize: 20,
-  },
   username: {
-    marginTop: 0,
-    fontSize: 14,
-    color: '#888',
+    marginTop: 2,
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#fff',
   },
   counterContainer: {
     fontWeight: 'bold',
@@ -291,29 +314,27 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     alignItems: 'center',
     width: '100%',
-    color: '#000',
-    marginTop: 7,
-    borderTopWidth: 1,
-    borderTopColor: '#aaa',
-    borderBottomWidth: 1,
-    borderBottomColor: '#aaa',
-    paddingTop: 7,
-    paddingBottom: 10,
+    marginTop: 10,
+    marginBottom: 10,
   },
   counterBox: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    minWidth: "30%",
-    color: '#000',
+    width: "30%",
+    color: '#fff',
   },
   counter: {
     fontWeight: 'bold',
-    color: '#000',
-    fontSize: 16,
-  },
-  counterLabel: {
-    color: '#000',
+    color: '#fff',
     fontSize: 13,
   },
+  counterLabel: {
+    color: '#fff',
+    fontSize: 11,
+  },
+  splitLine: {
+    color: '#777',
+    fontSize: 15,
+  }
 });
