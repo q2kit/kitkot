@@ -85,8 +85,6 @@ function Home() {
         )}
         pagingEnabled
         onViewableItemsChanged={({ viewableItems, changed }) => {
-          console.log(viewableItems);
-          console.log(changed);
         }}
       />
     </View>

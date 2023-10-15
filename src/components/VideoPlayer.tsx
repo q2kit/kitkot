@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   TouchableWithoutFeedback,
   StyleSheet,
@@ -10,8 +10,8 @@ import {
 import { IconButton } from "react-native-paper";
 import Video from 'react-native-video';
 import { useWindowDimensions } from 'react-native';
-import { State, TapGestureHandler } from 'react-native-gesture-handler';
 import { convertToK, isLongDescription } from '../utils/Functions';
+import CommentModal from './CommentModal';
 
 export default function VideoPlayer({ video }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -20,8 +20,8 @@ export default function VideoPlayer({ video }) {
   const statusBarHeight = StatusBar.currentHeight || 0;
   const [liked, setLiked] = useState(video.liked);
   const [likes, setLikes] = useState(video.likes);
-  const [comments, setComments] = useState(video.comments);
   const [isMorePressed, setIsMorePressed] = useState(false);
+  const [isModalVisible, setModalVisible] = useState(false);
   const onLikePress = () => {
     setLikes(likes + (liked ? -1 : 1));
     setLiked(!liked);
@@ -77,12 +77,18 @@ export default function VideoPlayer({ video }) {
       />
       <Text style={styles.likeCount}>{convertToK(likes)}</Text>
       <IconButton
+        onPress={() => setModalVisible(true)}
         icon={require('../assets/comment.png')}
         size={35}
         style={styles.showCommentBtn}
         iconColor='#fff'
       />
-      <Text style={styles.commentCount}>{convertToK(comments)}</Text>
+      <Text style={styles.commentCount}>{convertToK(video.comments)}</Text>
+      <CommentModal
+        visible={isModalVisible}
+        onClose={() => setModalVisible(false)}
+        video={video}
+      />
     </View>
   )
 }

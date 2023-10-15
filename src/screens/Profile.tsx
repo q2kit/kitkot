@@ -22,7 +22,8 @@ const getData = (routeKey: string) => {
       uri: "https://kitkot.q2k.dev/video_example",
       thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
       owner: {
-        name: "Nguyeenx Vawn A"
+        name: "Nguyeenx Vawn A",
+        avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
       },
       liked: true,
       likes: 100,
@@ -34,7 +35,8 @@ const getData = (routeKey: string) => {
       uri: "https://kitkot.q2k.dev/video_example2",
       thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
       owner: {
-        name: "Nguyeenx Vawn A"
+        name: "Nguyeenx Vawn A",
+        avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
       },
       liked: true,
       likes: 100,
@@ -46,7 +48,8 @@ const getData = (routeKey: string) => {
       uri: "https://kitkot.q2k.dev/video_example",
       thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
       owner: {
-        name: "Nguyeenx Vawn A"
+        name: "Nguyeenx Vawn A",
+        avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
       },
       liked: true,
       likes: 100,
@@ -58,7 +61,8 @@ const getData = (routeKey: string) => {
       uri: "https://kitkot.q2k.dev/video_example2",
       thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
       owner: {
-        name: "Nguyeenx Vawn A"
+        name: "Nguyeenx Vawn A",
+        avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
       },
       liked: true,
       likes: 100,

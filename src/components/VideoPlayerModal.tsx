@@ -1,27 +1,22 @@
 import React, { useState } from 'react'
 import {
   Image,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableWithoutFeedback,
   View,
-  useWindowDimensions
 } from 'react-native'
 import { IconButton } from "react-native-paper";
 import Video from 'react-native-video'
 import { convertToK, isLongDescription } from '../utils/Functions';
-
+import CommentModal from './CommentModal';
 
 export default function VideoPlayerModal({ video, onClose }) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const layout = useWindowDimensions();
-  const tabBarHeight = 50;
-  const statusBarHeight = StatusBar.currentHeight || 0;
   const [liked, setLiked] = useState(video.liked);
   const [likes, setLikes] = useState(video.likes);
-  const [comments, setComments] = useState(video.comments);
   const [isMorePressed, setIsMorePressed] = useState(false);
+  const [isModalVisible, setModalVisible] = useState(false);
   const onLikePress = () => {
     setLikes(likes + (liked ? -1 : 1));
     setLiked(!liked);
@@ -55,7 +50,7 @@ export default function VideoPlayerModal({ video, onClose }) {
         icon={require('../assets/close.png')}
         size={25}
         onPress={onClose}
-        style={styles.closeBtn}
+        style={[styles.closeBtn, { display: isModalVisible ? 'none' : 'flex' }]}
       />
       <View style={styles.videoInfo}>
         <Text style={styles.ownerName}>{video.owner.name}</Text>
@@ -87,8 +82,14 @@ export default function VideoPlayerModal({ video, onClose }) {
         size={35}
         style={styles.showCommentBtn}
         iconColor='#fff'
+        onPress={() => setModalVisible(true)}
       />
-      <Text style={styles.commentCount}>{convertToK(comments)}</Text>
+      <Text style={styles.commentCount}>{convertToK(video.comments)}</Text>
+      <CommentModal
+        visible={isModalVisible}
+        onClose={() => setModalVisible(false)}
+        video={video}
+      />
     </View>
   )
 }
