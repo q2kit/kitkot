@@ -131,6 +131,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontStyle: 'italic',
     flexWrap: 'wrap',
+    width: 40,
   },
   ownerAvatar: {
     width: 50,
