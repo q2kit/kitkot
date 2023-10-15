@@ -75,6 +75,7 @@ export default function CommentModal({ video, visible, onClose }) {
       visible={visible}
       animationType='slide'
       transparent={true}
+      onRequestClose={onClose}
     >
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.closeModal} />

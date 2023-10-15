@@ -5,13 +5,15 @@ import {
   Text,
   TouchableWithoutFeedback,
   View,
+  Modal,
 } from 'react-native'
 import { IconButton } from "react-native-paper";
 import Video from 'react-native-video'
 import { convertToK, isLongDescription } from '../utils/Functions';
 import CommentModal from './CommentModal';
 
-export default function VideoPlayerModal({ video, onClose }) {
+export default function VideoPlayerModal({ visible, video, onClose }) {
+  if (!video) return null;
   const [isPlaying, setIsPlaying] = useState(false);
   const [liked, setLiked] = useState(video.liked);
   const [likes, setLikes] = useState(video.likes);
@@ -25,7 +27,11 @@ export default function VideoPlayerModal({ video, onClose }) {
     setIsMorePressed(!isMorePressed);
   }
   return (
-    <View>
+    <Modal
+      visible={visible}
+      animationType='slide'
+      onRequestClose={onClose}
+    >
       <TouchableWithoutFeedback onPressOut={() => setIsPlaying(!isPlaying)}>
         <View style={styles.container}>
           <Video
@@ -90,7 +96,7 @@ export default function VideoPlayerModal({ video, onClose }) {
         onClose={() => setModalVisible(false)}
         video={video}
       />
-    </View>
+    </Modal>
   )
 }
 

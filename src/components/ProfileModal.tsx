@@ -3,7 +3,6 @@ import {
   FlatList,
   Image,
   Modal,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -12,7 +11,6 @@ import { convertToK } from '../utils/Functions';
 import { Button, IconButton } from 'react-native-paper';
 import VideoThumbnail from './VideoThumbnail';
 import VideoPlayerModal from './VideoPlayerModal';
-import { useNavigation } from '@react-navigation/native';
 
 const getUserInfo = (id: number) => {
   return {
@@ -151,7 +149,6 @@ export default function ProfileModal({ user_id, visible, onClose }) {
   const [videoModal, setVideoModal] = React.useState(null);
   const [followers, setFollowers] = React.useState(userInfo.followers);
   const [is_following, setIsFollowing] = React.useState(userInfo.is_following);
-  const navigation = useNavigation();
 
   const handleFollow = () => {
     setIsFollowing(!is_following);
@@ -170,6 +167,7 @@ export default function ProfileModal({ user_id, visible, onClose }) {
       visible={visible}
       animationType='slide'
       transparent={true}
+      onRequestClose={onClose}
     >
       <View style={styles.container}>
         <IconButton
@@ -265,12 +263,11 @@ export default function ProfileModal({ user_id, visible, onClose }) {
             />
           )}
         />
-        <Modal visible={isModalVisible} animationType="slide">
-          <VideoPlayerModal
-            onClose={() => setModalVisible(false)}
-            video={videoModal}
-          />
-        </Modal>
+        <VideoPlayerModal
+          visible={isModalVisible}
+          onClose={() => setModalVisible(false)}
+          video={videoModal}
+        />
       </View>
     </Modal>
   )

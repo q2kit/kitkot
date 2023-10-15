@@ -105,12 +105,11 @@ const RouteRender = (props) => {
         />
       )}
     />
-    <Modal visible={isModalVisible} animationType="slide">
-      <VideoPlayerModal
-        onClose={() => setModalVisible(false)}
-        video={videoModal}
-      />
-    </Modal>
+    <VideoPlayerModal
+      visible={isModalVisible}
+      onClose={() => setModalVisible(false)}
+      video={videoModal}
+    />
   </View>
   )
 };
