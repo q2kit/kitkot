@@ -6,6 +6,7 @@ import {
   Text,
   Image,
   StatusBar,
+  TouchableHighlight,
 } from 'react-native'
 import { IconButton } from "react-native-paper";
 import Video from 'react-native-video';
@@ -14,8 +15,8 @@ import { convertToK, isLongDescription } from '../utils/Functions';
 import CommentModal from './CommentModal';
 import ProfileModal from './ProfileModal';
 
-export default function VideoPlayer({ video }) {
-  const [isPlaying, setIsPlaying] = useState(false);
+export default function VideoPlayer({ video, currentVideo }) {
+  const [isPlaying, setIsPlaying] = useState(currentVideo == video.key);
   const layout = useWindowDimensions();
   const tabBarHeight = 50;
   const statusBarHeight = StatusBar.currentHeight || 0;
@@ -24,6 +25,8 @@ export default function VideoPlayer({ video }) {
   const [isMorePressed, setIsMorePressed] = useState(false);
   const [isCommentModalVisible, setCommentModalVisible] = useState(false);
   const [isProfileModalVisible, setProfileModalVisible] = useState(false);
+  const [isFollowed, setIsFollowed] = useState(video.owner.is_followed);
+  const [isShowFollowBtn, setIsShowFollowBtn] = useState(!video.owner.is_followed);
   const onLikePress = () => {
     setLikes(likes + (liked ? -1 : 1));
     setLiked(!liked);
@@ -31,10 +34,22 @@ export default function VideoPlayer({ video }) {
   const onMorePress = () => {
     setIsMorePressed(!isMorePressed);
   }
+  const onFollowPress = () => {
+    setIsFollowed(!isFollowed);
+    setTimeout(() => {
+      setIsShowFollowBtn(false);
+    }, 1000);
+  }
+  const onVideoPress = () => {
+    setIsPlaying(!isPlaying);
+  }
   return (
     <View>
-      <TouchableWithoutFeedback onPressOut={() => setIsPlaying(!isPlaying)}>
-        <View style={[styles.container, { width: layout.width, height: layout.height - tabBarHeight - statusBarHeight }]}>
+      <TouchableHighlight
+        onPress={onVideoPress}
+        underlayColor='transparent'
+      >
+        <View style={[styles.container, { width: layout.width, height: layout.height - statusBarHeight - tabBarHeight }]}>
           <Video
             source={video}
             style={styles.video}
@@ -42,6 +57,7 @@ export default function VideoPlayer({ video }) {
             resizeMode="contain"
             repeat={true}
             paused={!isPlaying}
+
           />
           {!isPlaying && (
             <IconButton
@@ -52,7 +68,7 @@ export default function VideoPlayer({ video }) {
             />
           )}
         </View>
-      </TouchableWithoutFeedback>
+      </TouchableHighlight>
       <View style={styles.videoInfo}>
         <Text style={styles.ownerName}>{video.owner.name}</Text>
         <Text style={styles.description}>
@@ -81,6 +97,16 @@ export default function VideoPlayer({ video }) {
         user_id={video.owner.id}
       />
       <IconButton
+        icon={
+          isFollowed ? require('../assets/check.png') :
+            require('../assets/follow-btn.png')
+        }
+        onPress={onFollowPress}
+        size={20}
+        style={[styles.followBtn, { display: isShowFollowBtn ? 'flex' : 'none' }]}
+        iconColor='white'
+      />
+      <IconButton
         onPress={onLikePress}
         icon={require('../assets/heart.png')}
         size={35}
@@ -107,7 +133,7 @@ export default function VideoPlayer({ video }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#000',
+    backgroundColor: 'blue',
   },
   video: {
     flex: 1,
@@ -130,6 +156,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     fontWeight: 'bold',
+    paddingBottom: 5,
   },
   description: {
     color: '#fff',
@@ -155,6 +182,14 @@ const styles = StyleSheet.create({
     top: '50%',
     marginTop: -25,
     right: 10,
+  },
+  followBtn: {
+    position: 'absolute',
+    top: 368,
+    right: 19,
+    width: 20,
+    height: 20,
+    backgroundColor: 'red',
   },
   likeBtn: {
     position: 'absolute',
