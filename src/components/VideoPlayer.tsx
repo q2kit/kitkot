@@ -47,7 +47,7 @@ export default function VideoPlayer({ video, currentVideo }) {
     <View>
       <TouchableHighlight
         onPress={onVideoPress}
-        underlayColor='transparent'
+        activeOpacity={1}
       >
         <View style={[styles.container, { width: layout.width, height: layout.height - statusBarHeight - tabBarHeight }]}>
           <Video
@@ -133,7 +133,7 @@ export default function VideoPlayer({ video, currentVideo }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'blue',
+    backgroundColor: 'black',
   },
   video: {
     flex: 1,
@@ -146,6 +146,7 @@ const styles = StyleSheet.create({
     left: '50%',
     marginLeft: -35,
     marginTop: -35,
+    opacity: 0.5,
   },
   videoInfo: {
     position: 'absolute',
