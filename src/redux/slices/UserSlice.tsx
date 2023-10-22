@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import {createSlice} from '@reduxjs/toolkit';
 
 interface UserState {
   accessToken: string | null;
@@ -20,7 +20,7 @@ const UserSlice = createSlice({
   initialState: initState,
   reducers: {
     setUser: (state, action) => {
-      return { ...state, ...action.payload };
+      return {...state, ...action.payload};
     },
     logout: () => {
       return initState;
@@ -28,5 +28,5 @@ const UserSlice = createSlice({
   },
 });
 
-export const { setUser, logout } = UserSlice.actions;
+export const {setUser, logout} = UserSlice.actions;
 export default UserSlice;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   TouchableWithoutFeedback,
   StyleSheet,
@@ -7,16 +7,16 @@ import {
   Image,
   StatusBar,
   TouchableHighlight,
-} from 'react-native'
-import { IconButton } from "react-native-paper";
+} from 'react-native';
+import {IconButton} from 'react-native-paper';
 import Video from 'react-native-video';
-import { useWindowDimensions } from 'react-native';
-import { convertToK, isLongDescription } from '../utils/Functions';
+import {useWindowDimensions} from 'react-native';
+import {convertToK, isLongDescription} from '../utils/Functions';
 import CommentModal from './CommentModal';
 import ProfileModal from './ProfileModal';
 
-export default function VideoPlayer({ video, currentVideo }) {
-  const [isPlaying, setIsPlaying] = useState(currentVideo == video.key);
+export default function VideoPlayer({video, currentVideo}) {
+  const [isPlaying, setIsPlaying] = useState(currentVideo == video.id);
   const layout = useWindowDimensions();
   const tabBarHeight = 50;
   const statusBarHeight = StatusBar.currentHeight || 0;
@@ -26,30 +26,34 @@ export default function VideoPlayer({ video, currentVideo }) {
   const [isCommentModalVisible, setCommentModalVisible] = useState(false);
   const [isProfileModalVisible, setProfileModalVisible] = useState(false);
   const [isFollowed, setIsFollowed] = useState(video.owner.is_followed);
-  const [isShowFollowBtn, setIsShowFollowBtn] = useState(!video.owner.is_followed);
+  const [isShowFollowBtn, setIsShowFollowBtn] = useState(
+    !video.owner.is_followed,
+  );
   const onLikePress = () => {
     setLikes(likes + (liked ? -1 : 1));
     setLiked(!liked);
-  }
+  };
   const onMorePress = () => {
     setIsMorePressed(!isMorePressed);
-  }
+  };
   const onFollowPress = () => {
     setIsFollowed(!isFollowed);
     setTimeout(() => {
       setIsShowFollowBtn(false);
     }, 1000);
-  }
+  };
   const onVideoPress = () => {
     setIsPlaying(!isPlaying);
-  }
+  };
+
   return (
     <View>
-      <TouchableHighlight
-        onPress={onVideoPress}
-        activeOpacity={1}
-      >
-        <View style={[styles.container, { width: layout.width, height: layout.height - statusBarHeight }]}>
+      <TouchableHighlight onPress={onVideoPress} activeOpacity={1}>
+        <View
+          style={[
+            styles.container,
+            {width: layout.width, height: layout.height - statusBarHeight},
+          ]}>
           <Video
             source={video}
             style={styles.video}
@@ -57,14 +61,13 @@ export default function VideoPlayer({ video, currentVideo }) {
             resizeMode="contain"
             repeat={true}
             paused={!isPlaying}
-
           />
           {!isPlaying && (
             <IconButton
               icon={require('../assets/play.png')}
               size={70}
               style={styles.playBtn}
-              iconColor='#eee'
+              iconColor="#eee"
             />
           )}
         </View>
@@ -72,24 +75,30 @@ export default function VideoPlayer({ video, currentVideo }) {
       <View style={styles.videoInfo}>
         <Text style={styles.ownerName}>{video.owner.name}</Text>
         <Text style={styles.description}>
-          {isMorePressed ? video.description : isLongDescription(video.description).description}
+          {isMorePressed
+            ? video.description
+            : isLongDescription(video.description).description}
         </Text>
         <TouchableWithoutFeedback onPress={onMorePress}>
           <Text
-            style={[styles.descriptionMore, { display: isLongDescription(video.description).isLong ? 'flex' : 'none' }]}
-          >
+            style={[
+              styles.descriptionMore,
+              {
+                display: isLongDescription(video.description).isLong
+                  ? 'flex'
+                  : 'none',
+              },
+            ]}>
             {isMorePressed ? 'Less' : 'More'}
           </Text>
         </TouchableWithoutFeedback>
       </View>
-      <TouchableWithoutFeedback onPress={() => {
-        setProfileModalVisible(true);
-        setIsPlaying(false);
-      }}>
-        <Image
-          source={{ uri: video.owner.avatar }}
-          style={styles.ownerAvatar}
-        />
+      <TouchableWithoutFeedback
+        onPress={() => {
+          setProfileModalVisible(true);
+          setIsPlaying(false);
+        }}>
+        <Image source={{uri: video.owner.avatar}} style={styles.ownerAvatar} />
       </TouchableWithoutFeedback>
       <ProfileModal
         visible={isProfileModalVisible}
@@ -98,13 +107,14 @@ export default function VideoPlayer({ video, currentVideo }) {
       />
       <IconButton
         icon={
-          isFollowed ? require('../assets/check.png') :
-            require('../assets/follow-btn.png')
+          isFollowed
+            ? require('../assets/check.png')
+            : require('../assets/follow-btn.png')
         }
         onPress={onFollowPress}
         size={20}
-        style={[styles.followBtn, { display: isShowFollowBtn ? 'flex' : 'none' }]}
-        iconColor='white'
+        style={[styles.followBtn, {display: isShowFollowBtn ? 'flex' : 'none'}]}
+        iconColor="white"
       />
       <IconButton
         onPress={onLikePress}
@@ -119,7 +129,7 @@ export default function VideoPlayer({ video, currentVideo }) {
         icon={require('../assets/comment.png')}
         size={35}
         style={styles.showCommentBtn}
-        iconColor='#fff'
+        iconColor="#fff"
       />
       <Text style={styles.commentCount}>{convertToK(video.comments)}</Text>
       <CommentModal
@@ -128,7 +138,7 @@ export default function VideoPlayer({ video, currentVideo }) {
         video={video}
       />
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -224,4 +234,4 @@ const styles = StyleSheet.create({
     right: 20,
     textAlign: 'center',
   },
-})
+});

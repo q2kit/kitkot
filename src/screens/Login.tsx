@@ -1,27 +1,26 @@
-import React, { useState } from 'react'
+import React, {useState} from 'react';
 import {
   TouchableWithoutFeedback,
   StyleSheet,
   View,
   ToastAndroid,
-} from 'react-native'
-import { Text } from 'react-native-paper'
-import Background from '../components/Background'
-import Logo from '../components/Logo'
-import RegistrationHeader from '../components/RegistrationHeader'
-import Button from '../components/Button'
-import TextInput from '../components/TextInput'
-import { theme } from '../core/theme'
-import { LOGIN_URL } from '../config'
-import axios from 'axios'
-import { setUser } from '../redux/slices/UserSlice';
-import { useAppDispatch } from '../redux/hooks'
+} from 'react-native';
+import {Text} from 'react-native-paper';
+import Background from '../components/Background';
+import Logo from '../components/Logo';
+import RegistrationHeader from '../components/RegistrationHeader';
+import Button from '../components/Button';
+import TextInput from '../components/TextInput';
+import {theme} from '../core/theme';
+import {LOGIN_URL} from '../config';
+import axios from 'axios';
+import {setUser} from '../redux/slices/UserSlice';
+import {useAppDispatch} from '../redux/hooks';
 
-
-export default function Login({ navigation }) {
-  const [login_id, setLogin_id] = useState({ value: '', error: '' })
-  const [password, setPassword] = useState({ value: '', error: '' })
-  const [showPassword, setShowPassword] = useState(false)
+export default function Login({navigation}) {
+  const [login_id, setLogin_id] = useState({value: '', error: ''});
+  const [password, setPassword] = useState({value: '', error: ''});
+  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useAppDispatch();
 
   const toggleShowPassword = () => {
@@ -29,48 +28,53 @@ export default function Login({ navigation }) {
   };
 
   const onLoginPressed = () => {
-    if (login_id.value.length === 0) {
-      setLogin_id({ ...login_id, error: 'Login ID is required' })
-      return
-    }
-    if (password.value.length === 0) {
-      setPassword({ ...password, error: 'Password is required' })
-      return
-    }
+    navigation.reset({
+      index: 0,
+      routes: [{name: 'BottomTab'}],
+    });
 
-    const fd = new FormData();
-    fd.append('login_id', login_id.value);
-    fd.append('password', password.value);
-    axios.post(LOGIN_URL, fd)
-      .then(response => {
-        const user = {
-          accessToken: response.data.token,
-          name: response.data.user.name,
-          id: response.data.user.id,
-        };
-        dispatch(setUser(user));
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'BottomTab' }],
-        })
-      })
-      .catch(error => {
-        if (error.response.data.fields) {
-          if (error.response.data.fields.login_id) {
-            setLogin_id({ ...login_id, error: error.response.data.fields.login_id })
-          }
-          if (error.response.data.fields.password) {
-            setPassword({ ...password, error: error.response.data.fields.password })
-          }
-        }
-        else if (error.response.data.message) {
-          ToastAndroid.show(error.response.data.message, ToastAndroid.SHORT);
-        }
-        else {
-          ToastAndroid.show(error, ToastAndroid.SHORT);
-        }
-      });
-  }
+    // if (login_id.value.length === 0) {
+    //   setLogin_id({ ...login_id, error: 'Login ID is required' })
+    //   return
+    // }
+    // if (password.value.length === 0) {
+    //   setPassword({ ...password, error: 'Password is required' })
+    //   return
+    // }
+
+    // const fd = new FormData();
+    // fd.append('login_id', login_id.value);
+    // fd.append('password', password.value);
+    // axios.post(LOGIN_URL, fd)
+    //   .then(response => {
+    //     const user = {
+    //       accessToken: response.data.token,
+    //       name: response.data.user.name,
+    //       id: response.data.user.id,
+    //     };
+    //     dispatch(setUser(user));
+    //     navigation.reset({
+    //       index: 0,
+    //       routes: [{ name: 'BottomTab' }],
+    //     })
+    //   })
+    //   .catch(error => {
+    //     if (error.response.data.fields) {
+    //       if (error.response.data.fields.login_id) {
+    //         setLogin_id({ ...login_id, error: error.response.data.fields.login_id })
+    //       }
+    //       if (error.response.data.fields.password) {
+    //         setPassword({ ...password, error: error.response.data.fields.password })
+    //       }
+    //     }
+    //     else if (error.response.data.message) {
+    //       ToastAndroid.show(error.response.data.message, ToastAndroid.SHORT);
+    //     }
+    //     else {
+    //       ToastAndroid.show(error, ToastAndroid.SHORT);
+    //     }
+    //   });
+  };
 
   return (
     <Background>
@@ -80,7 +84,7 @@ export default function Login({ navigation }) {
         label="Login ID"
         returnKeyType="next"
         value={login_id.value}
-        onChangeText={(text) => setLogin_id({ value: text, error: '' })}
+        onChangeText={text => setLogin_id({value: text, error: ''})}
         error={!!login_id.error}
         errorText={login_id.error}
         autoCapitalize="none"
@@ -90,7 +94,7 @@ export default function Login({ navigation }) {
         label="Password"
         returnKeyType="done"
         value={password.value}
-        onChangeText={(text) => setPassword({ value: text, error: '' })}
+        onChangeText={text => setPassword({value: text, error: ''})}
         error={!!password.error}
         errorText={password.error}
         autoCapitalize="none"
@@ -98,7 +102,8 @@ export default function Login({ navigation }) {
         onIconPress={toggleShowPassword}
       />
       <View style={styles.forgotPassword}>
-        <TouchableWithoutFeedback onPress={() => navigation.navigate('ResetPassword')}>
+        <TouchableWithoutFeedback
+          onPress={() => navigation.navigate('ResetPassword')}>
           <Text style={styles.forgot}>Forgot your password?</Text>
         </TouchableWithoutFeedback>
       </View>
@@ -107,12 +112,13 @@ export default function Login({ navigation }) {
       </Button>
       <View style={styles.row}>
         <Text>Don't have an account? </Text>
-        <TouchableWithoutFeedback onPress={() => navigation.navigate('Register')}>
+        <TouchableWithoutFeedback
+          onPress={() => navigation.navigate('Register')}>
           <Text style={styles.link}>Sign up</Text>
         </TouchableWithoutFeedback>
       </View>
     </Background>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -136,4 +142,4 @@ const styles = StyleSheet.create({
   icon: {
     marginLeft: 10,
   },
-})
+});

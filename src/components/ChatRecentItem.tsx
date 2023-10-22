@@ -1,26 +1,26 @@
-import React from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
-import { convertDatetime } from "../utils/Functions";
+import React from 'react';
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {convertDatetime} from '../utils/Functions';
+import {useNavigation} from '@react-navigation/native';
 
-export default function ChatRecentItem({ friend, onPress }) {
+export default function ChatRecentItem({friend}) {
+  const navigation = useNavigation();
+
   return (
-    <View style={styles.container}>
-      <Image
-        style={styles.avatar}
-        source={{ uri: friend.avatar }}
-      ></Image>
+    <TouchableOpacity
+      style={styles.container}
+      onPress={() => navigation.navigate('ChatDetail')}>
+      <Image style={styles.avatar} source={{uri: friend.avatar}} />
       <Text style={styles.name}>{friend.name}</Text>
       <View style={styles.messageContainer}>
-        <Text
-          style={styles.message}
-          numberOfLines={1}
-          ellipsizeMode='tail'
-        >
+        <Text style={styles.message} numberOfLines={1} ellipsizeMode="tail">
           {friend.lastMessage.message}
         </Text>
-        <Text style={styles.datetime}>{convertDatetime(friend.lastMessage.datetime)}</Text>
+        <Text style={styles.datetime}>
+          {convertDatetime(friend.lastMessage.datetime)}
+        </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
