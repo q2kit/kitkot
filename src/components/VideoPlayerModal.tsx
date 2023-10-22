@@ -3,6 +3,7 @@ import {
   Image,
   StyleSheet,
   Text,
+  TouchableHighlight,
   TouchableWithoutFeedback,
   View,
   Modal,
@@ -32,7 +33,10 @@ export default function VideoPlayerModal({ visible, video, onClose }) {
       animationType='slide'
       onRequestClose={onClose}
     >
-      <TouchableWithoutFeedback onPressOut={() => setIsPlaying(!isPlaying)}>
+      <TouchableHighlight
+        onPress={() => setIsPlaying(!isPlaying)}
+        activeOpacity={1}
+      >
         <View style={styles.container}>
           <Video
             source={video}
@@ -51,7 +55,7 @@ export default function VideoPlayerModal({ visible, video, onClose }) {
             />
           )}
         </View>
-      </TouchableWithoutFeedback>
+      </TouchableHighlight>
       <IconButton
         icon={require('../assets/close.png')}
         size={25}

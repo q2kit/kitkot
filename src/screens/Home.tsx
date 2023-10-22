@@ -101,6 +101,7 @@ function Home() {
         )}
         pagingEnabled
         keyExtractor={item => item.id}
+        showsVerticalScrollIndicator={false}
         viewabilityConfigCallbackPairs={viewabilityConfigCallbackPairs.current}
       />
     </View>

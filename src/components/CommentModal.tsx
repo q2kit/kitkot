@@ -9,7 +9,7 @@ import {
   TextInput,
 } from 'react-native'
 import { IconButton } from 'react-native-paper';
-import Comment from './Comment';
+import CommentItem from './CommentItem';
 
 
 export default function CommentModal({ video, visible, onClose }) {
@@ -102,7 +102,7 @@ export default function CommentModal({ video, visible, onClose }) {
         </View>
         <ScrollView style={styles.commentContainer}>
           {comments.map((comment, index) => (
-            <Comment key={index} comment={comment} />
+            <CommentItem key={index} comment={comment} />
           ))}
         </ScrollView>
         <View style={styles.inputCommentContainer}>

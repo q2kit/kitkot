@@ -2,16 +2,24 @@ import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { convertDatetime } from "../utils/Functions";
 
-export default function Comment({ comment }) {
+export default function ChatRecentItem({ friend, onPress }) {
   return (
     <View style={styles.container}>
       <Image
         style={styles.avatar}
-        source={{ uri: comment.owner.avatar }}
+        source={{ uri: friend.avatar }}
       ></Image>
-      <Text style={styles.name}>{comment.owner.name}</Text>
-      <Text style={styles.comment}>{comment.comment}</Text>
-      <Text style={styles.datetime}>{convertDatetime(comment.datetime)}</Text>
+      <Text style={styles.name}>{friend.name}</Text>
+      <View style={styles.messageContainer}>
+        <Text
+          style={styles.message}
+          numberOfLines={1}
+          ellipsizeMode='tail'
+        >
+          {friend.lastMessage.message}
+        </Text>
+        <Text style={styles.datetime}>{convertDatetime(friend.lastMessage.datetime)}</Text>
+      </View>
     </View>
   );
 }
@@ -23,7 +31,8 @@ const styles = StyleSheet.create({
     paddingTop: 5,
     borderBottomWidth: 1,
     backgroundColor: 'transparent',
-    borderBottomColor: '#000',
+    borderBottomColor: '#666',
+    borderStyle: 'solid',
   },
   avatar: {
     width: 50,
@@ -43,18 +52,22 @@ const styles = StyleSheet.create({
     color: '#fff',
     left: 65,
   },
-  comment: {
+  messageContainer: {
+    flexDirection: 'row',
+  },
+  message: {
     fontSize: 12,
     marginTop: 30,
     color: '#fff',
     marginLeft: 65,
-    flexWrap: 'wrap',
+    maxWidth: '50%',
+    minWidth: '50%',
   },
   datetime: {
     fontSize: 9,
     fontWeight: 'bold',
-    marginTop: 5,
+    marginTop: 33,
     color: '#bbb',
-    marginLeft: 65,
+    marginLeft: 30,
   },
 });

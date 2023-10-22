@@ -49,7 +49,7 @@ export default function VideoPlayer({ video, currentVideo }) {
         onPress={onVideoPress}
         activeOpacity={1}
       >
-        <View style={[styles.container, { width: layout.width, height: layout.height - statusBarHeight - tabBarHeight }]}>
+        <View style={[styles.container, { width: layout.width, height: layout.height - statusBarHeight }]}>
           <Video
             source={video}
             style={styles.video}
@@ -133,7 +133,7 @@ export default function VideoPlayer({ video, currentVideo }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'black',
+    backgroundColor: 'blue',
   },
   video: {
     flex: 1,
