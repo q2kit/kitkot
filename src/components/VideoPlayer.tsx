@@ -16,9 +16,9 @@ import CommentModal from './CommentModal';
 import ProfileModal from './ProfileModal';
 
 export default function VideoPlayer({ video, currentVideo }) {
-  const [isPlaying, setIsPlaying] = useState(currentVideo == video.key);
+  const [isPlaying, setIsPlaying] = useState(currentVideo == video.id);
   const layout = useWindowDimensions();
-  const tabBarHeight = 50;
+  const bottomTabHeight = 50;
   const statusBarHeight = StatusBar.currentHeight || 0;
   const [liked, setLiked] = useState(video.liked);
   const [likes, setLikes] = useState(video.likes);
@@ -49,7 +49,7 @@ export default function VideoPlayer({ video, currentVideo }) {
         onPress={onVideoPress}
         activeOpacity={1}
       >
-        <View style={[styles.container, { width: layout.width, height: layout.height - statusBarHeight }]}>
+        <View style={[styles.container, { width: layout.width, height: layout.height - statusBarHeight - bottomTabHeight }]}>
           <Video
             source={video}
             style={styles.video}
@@ -87,7 +87,7 @@ export default function VideoPlayer({ video, currentVideo }) {
         setIsPlaying(false);
       }}>
         <Image
-          source={{ uri: video.owner.avatar }}
+          source={{ uri: "https://drive.vnsvs.net/default-avatar.png" }}
           style={styles.ownerAvatar}
         />
       </TouchableWithoutFeedback>
@@ -133,7 +133,7 @@ export default function VideoPlayer({ video, currentVideo }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'blue',
+    backgroundColor: 'black',
   },
   video: {
     flex: 1,
@@ -182,12 +182,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '50%',
     marginTop: -25,
-    right: 10,
+    right: 11,
   },
   followBtn: {
     position: 'absolute',
     top: 368,
-    right: 19,
+    right: 19.5,
     width: 20,
     height: 20,
     backgroundColor: 'red',

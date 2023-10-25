@@ -4,6 +4,8 @@ import { IconButton } from 'react-native-paper'
 import Home from './Home';
 import Profile from './Profile';
 import Chat from './Chat';
+import Explore from './Explore';
+import Upload from './Upload';
 import { Image } from 'react-native';
 
 const Tab = createBottomTabNavigator();
@@ -47,7 +49,7 @@ function BottomTab() {
       <Tab.Screen
         key="Explore"
         name="Explore"
-        component={Chat}
+        component={Explore}
         options={{
           headerShown: false,
           title: 'Explore',
@@ -62,9 +64,9 @@ function BottomTab() {
         }}
       />
       <Tab.Screen
-        key="Add"
-        name="Add"
-        component={Chat}
+        key="Upload"
+        name="Upload"
+        component={Upload}
         options={{
           headerShown: false,
           title: '',

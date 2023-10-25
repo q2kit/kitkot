@@ -46,7 +46,12 @@ export default function Login({ navigation }) {
         const user = {
           accessToken: response.data.token,
           name: response.data.user.name,
-          id: response.data.user.id,
+          username: response.data.user.username,
+          avatar: response.data.user.avatar,
+          followers: response.data.user.followers,
+          following: response.data.user.following,
+          likes: response.data.user.likes,
+          id: response.data.user.uid,
         };
         dispatch(setUser(user));
         navigation.reset({

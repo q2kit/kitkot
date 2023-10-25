@@ -10,3 +10,6 @@ export const HOST_API = "https://kitkot.q2k.dev/api";
 export const LOGIN_URL = joinPaths(HOST_API, "login/");
 export const REGISTER_URL = joinPaths(HOST_API, "register/");
 export const RESET_PASSWORD_URL = joinPaths(HOST_API, "reset-password/");
+export const GET_VIDEOS_URL = joinPaths(HOST_API, "videos/");
+export const GET_PROFILE_URL = joinPaths(HOST_API, "profile/");
+export const UPLOAD_VIDEO_URL = joinPaths(HOST_API, "post-video/");

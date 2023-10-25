@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Text,
   View,
@@ -6,7 +6,6 @@ import {
   Image,
   useWindowDimensions,
   FlatList,
-  Modal,
 } from "react-native";
 import { useAppSelector } from "../redux/hooks";
 import { IconButton } from "react-native-paper";
@@ -14,200 +13,150 @@ import { TabView, TabBar, SceneMap } from 'react-native-tab-view';
 import { convertToK } from "../utils/Functions";
 import VideoThumbnail from "../components/VideoThumbnail";
 import VideoPlayerModal from "../components/VideoPlayerModal";
-
-const getData = (routeKey: string) => {
-  return [
-    {
-      key: 'a',
-      uri: "https://kitkot.q2k.dev/video_example",
-      thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
-      owner: {
-        name: "Nguyeenx Vawn A",
-        avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
-      },
-      liked: true,
-      likes: 100,
-      views: 122200000,
-      comments: 10200,
-      is_premium: true,
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget aliquam ultricies, nunc nisl ultricies nunc, quis ultri",
-    },
-    {
-      key: 'b',
-      uri: "https://kitkot.q2k.dev/video_example2",
-      thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
-      owner: {
-        name: "Nguyeenx Vawn A",
-        avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
-      },
-      liked: true,
-      likes: 100,
-      views: 1000,
-      comments: 10200,
-      description: "Example description",
-    },
-    {
-      key: 'c',
-      uri: "https://kitkot.q2k.dev/video_example",
-      thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
-      owner: {
-        name: "Nguyeenx Vawn A",
-        avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
-      },
-      liked: true,
-      likes: 100,
-      views: 1000,
-      comments: 10200,
-      is_premium: true,
-      description: "Example description",
-    },
-    {
-      key: 'd',
-      uri: "https://kitkot.q2k.dev/video_example2",
-      thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
-      owner: {
-        name: "Nguyeenx Vawn A",
-        avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
-      },
-      liked: true,
-      likes: 100,
-      views: 1000,
-      comments: 10200,
-      description: "Example description",
-    },
-  ];
-}
-
-const RouteRender = (props) => {
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [videoModal, setVideoModal] = useState(null);
-  const styles = StyleSheet.create({
-    list: {
-      width: '100%',
-      height: '100%',
-      backgroundColor: '#0a0a0a',
-    },
-  });
-
-  return (<View>
-    <FlatList
-      style={styles.list}
-      data={getData(props.route.key)}
-      numColumns={3}
-      key={3}
-      renderItem={({ item }) => (
-        <VideoThumbnail
-          video={item}
-          onPress={() => {
-            setModalVisible(true);
-            setVideoModal(item);
-          }}
-        />
-      )}
-    />
-    <VideoPlayerModal
-      visible={isModalVisible}
-      onClose={() => setModalVisible(false)}
-      video={videoModal}
-    />
-  </View>
-  )
-};
-
-const renderScene = SceneMap({
-  first: RouteRender,
-  second: RouteRender,
-  third: RouteRender,
-  fourth: RouteRender,
-});
-
-function renderTabBar(props) {
-  const tabBarStyles = StyleSheet.create({
-    tabContainer: {
-      height: 40,
-      backgroundColor: '#000',
-      width: '90%',
-      marginLeft: '5%',
-      shadowOffset: { height: 0, width: 0 },
-      shadowColor: 'transparent',
-      shadowOpacity: 0,
-      boxShadow: 'none',
-    },
-    indicator: {
-      display: 'none',
-    },
-    tab: {
-      top: -4,
-      height: 30,
-      paddingLeft: 10,
-      paddingRight: 10,
-    },
-    activeTab: {
-      borderBottomWidth: 2,
-      borderBottomColor: '#fff',
-    },
-    icon: {
-      width: 20,
-      height: 20,
-      marginTop: 0,
-    }
-  });
-  return (
-    <View style={{ backgroundColor: '#000' }}>
-      <TabBar
-        {...props}
-        indicatorStyle={tabBarStyles.indicator}
-        style={tabBarStyles.tabContainer}
-        renderIcon={({ route, focused, color }) => {
-          const sourceMap = {
-            first: focused
-              ? require('../assets/myvideo-active.png')
-              : require('../assets/myvideo-active.png'),
-            second: focused
-              ? require('../assets/myvideo-inactive.png')
-              : require('../assets/myvideo-inactive.png'),
-            third: focused
-              ? require('../assets/myvideo-inactive.png')
-              : require('../assets/myvideo-inactive.png'),
-            fourth: focused
-              ? require('../assets/myvideo-inactive.png')
-              : require('../assets/myvideo-inactive.png'),
-          };
-          const source = sourceMap[route.key];
-          return (
-            <View
-              style={[
-                tabBarStyles.tab,
-                focused ? tabBarStyles.activeTab : null,
-              ]}
-            >
-              <IconButton
-                icon={source}
-                style={tabBarStyles.icon}
-                iconColor={focused ? '#fff' : '#999'}
-                size={20}
-              />
-            </View>
-          )
-        }}
-      />
-    </View>
-  );
-}
+import { GET_PROFILE_URL } from "../config";
 
 
 export default function Profile({ navigation }) {
-
   const user = useAppSelector(state => state.user);
-  const test_avatar = "https://static.vecteezy.com/system/resources/previews/008/442/086/large_2x/illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg";
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
   const [routes] = useState([
-    { key: 'first' },
-    { key: 'second' },
-    { key: 'third' },
-    { key: 'fourth' },
+    { key: 'publicVideos' },
+    { key: 'privateVideos' },
+    { key: 'likedVideos' },
+    { key: 'watchedVideos' },
   ]);
+  const [videos, setVideos] = useState({
+    publicVideos: [],
+    privateVideos: [],
+    likedVideos: [],
+    watchedVideos: [],
+  });
+
+  useEffect(() => {
+    fetch(GET_PROFILE_URL + user.id + "/", {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${user.accessToken}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        setVideos(json.user.videos);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
+  const RouteRender = (props) => {
+    const [isModalVisible, setModalVisible] = useState(false);
+    const [videoModal, setVideoModal] = useState(null);
+    const styles = StyleSheet.create({
+      list: {
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#0a0a0a',
+      },
+    });
+    
+    return (<View>
+      <FlatList
+        style={styles.list}
+        data={videos[props.route.key]}
+        numColumns={3}
+        key={3}
+        renderItem={({ item }) => (
+          <VideoThumbnail
+            video={item}
+            onPress={() => {
+              setModalVisible(true);
+              setVideoModal(item);
+            }}
+          />
+        )}
+      />
+      <VideoPlayerModal
+        visible={isModalVisible}
+        onClose={() => setModalVisible(false)}
+        video={videoModal}
+      />
+    </View>
+    )
+  };
+
+  const renderScene = SceneMap({
+    publicVideos: RouteRender,
+    privateVideos: RouteRender,
+    likedVideos: RouteRender,
+    watchedVideos: RouteRender,
+  });
+
+  function renderTabBar(props) {
+    const tabBarStyles = StyleSheet.create({
+      tabContainer: {
+        height: 40,
+        backgroundColor: '#000',
+        width: '90%',
+        marginLeft: '5%',
+        shadowOffset: { height: 0, width: 0 },
+        shadowColor: 'transparent',
+        shadowOpacity: 0,
+        boxShadow: 'none',
+      },
+      indicator: {
+        display: 'none',
+      },
+      tab: {
+        top: -4,
+        height: 30,
+        paddingLeft: 10,
+        paddingRight: 10,
+      },
+      activeTab: {
+        borderBottomWidth: 2,
+        borderBottomColor: '#fff',
+      },
+      icon: {
+        width: 20,
+        height: 20,
+        marginTop: 0,
+      }
+    });
+    return (
+      <View style={{ backgroundColor: '#000' }}>
+        <TabBar
+          {...props}
+          indicatorStyle={tabBarStyles.indicator}
+          style={tabBarStyles.tabContainer}
+          renderIcon={({ route, focused, color }) => {
+            const sourceMap = {
+              publicVideos: require('../assets/video.png'),
+              privateVideos: require('../assets/private.png'),
+              likedVideos: require('../assets/heart2.png'),
+              watchedVideos: require('../assets/watch.png'),
+            };
+            const source = sourceMap[route.key];
+            return (
+              <View
+                style={[
+                  tabBarStyles.tab,
+                  focused ? tabBarStyles.activeTab : null,
+                ]}
+              >
+                <IconButton
+                  icon={source}
+                  style={tabBarStyles.icon}
+                  iconColor={focused ? '#fff' : '#999'}
+                  size={20}
+                />
+              </View>
+            )
+          }}
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -219,19 +168,19 @@ export default function Profile({ navigation }) {
         iconColor="#fff"
       />
       <Text style={styles.name}>
-        Họ Và Tên
+        {user.name}
       </Text>
       <Image
-        source={{ uri: user.avatar || test_avatar }}
+        source={{ uri: "https://drive.vnsvs.net/a0096504.jpg" }}
         style={styles.avatar}
       />
       <Text style={styles.username}>
-        @quan
+        @{user.username}
       </Text>
       <View style={styles.counterContainer}>
         <View style={styles.counterBox}>
           <Text style={styles.counter}>
-            {convertToK(1000)}
+            {convertToK(user.following)}
           </Text>
           <Text style={styles.counterLabel}>
             Following
@@ -240,7 +189,7 @@ export default function Profile({ navigation }) {
         <Text style={styles.splitLine}>|</Text>
         <View style={styles.counterBox}>
           <Text style={styles.counter}>
-            {convertToK(201700)}
+            {convertToK(user.followers)}
           </Text>
           <Text style={styles.counterLabel}>
             Followers
@@ -249,7 +198,7 @@ export default function Profile({ navigation }) {
         <Text style={styles.splitLine}>|</Text>
         <View style={styles.counterBox}>
           <Text style={styles.counter}>
-            {convertToK(3000321320)}
+            {convertToK(user.likes)}
           </Text>
           <Text style={styles.counterLabel}>
             Likes
@@ -304,7 +253,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#aaa',
   },
   counterContainer: {
     fontWeight: 'bold',

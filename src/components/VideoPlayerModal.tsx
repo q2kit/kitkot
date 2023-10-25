@@ -15,7 +15,7 @@ import CommentModal from './CommentModal';
 
 export default function VideoPlayerModal({ visible, video, onClose }) {
   if (!video) return null;
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [liked, setLiked] = useState(video.liked);
   const [likes, setLikes] = useState(video.likes);
   const [isMorePressed, setIsMorePressed] = useState(false);
@@ -39,7 +39,7 @@ export default function VideoPlayerModal({ visible, video, onClose }) {
       >
         <View style={styles.container}>
           <Video
-            source={video}
+            source={{uri: video.link}}
             style={styles.video}
             controls={false}
             resizeMode="contain"

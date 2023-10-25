@@ -1,8 +1,7 @@
 import React from "react";
-import { Button, Text, View, In } from "react-native";
+import { Button, View } from "react-native";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { logout } from '../redux/slices/UserSlice';
-import TextInput from "../components/TextInput";
 
 
 export default function Settings({ navigation }) {
