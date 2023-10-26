@@ -6,6 +6,7 @@ import {
   Image,
   useWindowDimensions,
   FlatList,
+  TouchableHighlight,
 } from "react-native";
 import { useAppSelector } from "../redux/hooks";
 import { IconButton } from "react-native-paper";
@@ -20,6 +21,7 @@ export default function Profile({ navigation }) {
   const user = useAppSelector(state => state.user);
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [routes] = useState([
     { key: 'publicVideos' },
     { key: 'privateVideos' },
@@ -59,7 +61,7 @@ export default function Profile({ navigation }) {
         backgroundColor: '#0a0a0a',
       },
     });
-    
+
     return (<View>
       <FlatList
         style={styles.list}
@@ -170,10 +172,15 @@ export default function Profile({ navigation }) {
       <Text style={styles.name}>
         {user.name}
       </Text>
-      <Image
-        source={{ uri: "https://drive.vnsvs.net/a0096504.jpg" }}
-        style={styles.avatar}
-      />
+      <TouchableHighlight
+        onPress={() => setShowAvatarModal(true)}
+        activeOpacity={1}
+      >
+        <Image
+          source={{ uri: user.avatar }}
+          style={styles.avatar}
+        />
+      </TouchableHighlight>
       <Text style={styles.username}>
         @{user.username}
       </Text>
@@ -217,6 +224,16 @@ export default function Profile({ navigation }) {
         initialLayout={{ width: layout.width }}
         renderTabBar={renderTabBar}
       />
+      <TouchableHighlight
+        onPress={() => setShowAvatarModal(false)}
+        activeOpacity={1}
+        style={[styles.avatarModalContainer, showAvatarModal ? null : { display: 'none' }]}
+      >
+        <Image
+          source={{ uri: user.avatar }}
+          style={styles.avatarModal}
+        />
+      </TouchableHighlight>
     </View>
   );
 }
@@ -248,6 +265,22 @@ const styles = StyleSheet.create({
     width: 110,
     height: 110,
     borderRadius: 100,
+  },
+  avatarModalContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#000',
+    opacity: 0.8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarModal: {
+    width: 350,
+    height: 350,
+    backgroundColor: '#fff',
   },
   username: {
     marginTop: 2,
