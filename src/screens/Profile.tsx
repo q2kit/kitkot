@@ -15,7 +15,7 @@ import { convertToK } from "../utils/Functions";
 import VideoThumbnail from "../components/VideoThumbnail";
 import VideoPlayerModal from "../components/VideoPlayerModal";
 import { GET_PROFILE_URL } from "../config";
-
+import { useIsFocused } from '@react-navigation/native';
 
 export default function Profile({ navigation }) {
   const user = useAppSelector(state => state.user);
@@ -34,6 +34,7 @@ export default function Profile({ navigation }) {
     likedVideos: [],
     watchedVideos: [],
   });
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     fetch(GET_PROFILE_URL + user.id + "/", {
@@ -49,7 +50,7 @@ export default function Profile({ navigation }) {
       .catch((error) => {
         console.error(error);
       });
-  }, []);
+  }, [isFocused]);
 
   const RouteRender = (props) => {
     const [isModalVisible, setModalVisible] = useState(false);

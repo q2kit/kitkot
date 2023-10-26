@@ -14,9 +14,33 @@ import { useWindowDimensions } from 'react-native';
 import { convertToK, isLongDescription } from '../utils/Functions';
 import CommentModal from './CommentModal';
 import ProfileModal from './ProfileModal';
+import {
+  LIKE_TOGGLE_URL,
+  SET_WATCH_URL,
+  joinPaths
+} from '../config';
+import { useAppSelector } from '../redux/hooks';
+import axios from 'axios';
 
 export default function VideoPlayer({ video, currentVideo }) {
+  const user = useAppSelector(state => state.user);
   const [isPlaying, setIsPlaying] = useState(currentVideo == video.id);
+  const likeToggle = () => {
+    const fd = new FormData();
+    fd.append('video_id', video.id);
+    axios.post(LIKE_TOGGLE_URL, fd, {
+      headers: {
+        'Authorization': `Bearer ${user.accessToken}`,
+      },
+    }).then(response => { }).catch(error => { });
+  };
+  if (isPlaying) {
+    axios.get(joinPaths(SET_WATCH_URL, video.id), {
+      headers: {
+        'Authorization': `Bearer ${user.accessToken}`,
+      },
+    }).then(response => { }).catch(error => { });
+  }
   const layout = useWindowDimensions();
   const bottomTabHeight = 50;
   const statusBarHeight = StatusBar.currentHeight || 0;
@@ -32,6 +56,7 @@ export default function VideoPlayer({ video, currentVideo }) {
   const onLikePress = () => {
     setLikes(likes + (liked ? -1 : 1));
     setLiked(!liked);
+    likeToggle();
   };
   const onMorePress = () => {
     setIsMorePressed(!isMorePressed);
