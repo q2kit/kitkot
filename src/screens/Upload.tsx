@@ -84,11 +84,9 @@ export default function VideoUploadScreen({ navigation }) {
       .then((res) => {
         setIsUploading(false);
         navigation.navigate('Profile');
-        console.log(res.data);
       })
       .catch((err) => {
         setIsUploading(false);
-        console.log(err);
       });
   };
   return (
