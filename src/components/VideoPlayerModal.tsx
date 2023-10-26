@@ -12,17 +12,33 @@ import { IconButton } from "react-native-paper";
 import Video from 'react-native-video'
 import { convertToK, isLongDescription } from '../utils/Functions';
 import CommentModal from './CommentModal';
+import { useAppSelector } from '../redux/hooks';
+import axios from 'axios';
+import { LIKE_TOGGLE_URL } from '../config';
 
 export default function VideoPlayerModal({ visible, video, onClose }) {
   if (!video) return null;
+  console.log(video);
+  
+  const user = useAppSelector(state => state.user);
   const [isPlaying, setIsPlaying] = useState(true);
   const [liked, setLiked] = useState(video.liked);
   const [likes, setLikes] = useState(video.likes);
   const [isMorePressed, setIsMorePressed] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
+  const likeToggle = () => {
+    const fd = new FormData();
+    fd.append('video_id', video.id);
+    axios.post(LIKE_TOGGLE_URL, fd, {
+      headers: {
+        'Authorization': `Bearer ${user.accessToken}`,
+      },
+    }).then(response => { }).catch(error => { });
+  };
   const onLikePress = () => {
     setLikes(likes + (liked ? -1 : 1));
     setLiked(!liked);
+    likeToggle();
   }
   const onMorePress = () => {
     setIsMorePressed(!isMorePressed);

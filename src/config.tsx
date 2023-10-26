@@ -18,3 +18,5 @@ export const GET_WS_ACCESS_TOKEN_URL = joinPaths(HOST_API, "ws-access-token");
 export const WS_URL = "wss://ws-service.q2k.dev/ws/kitkot/";
 export const LIKE_TOGGLE_URL = joinPaths(HOST_API, "like-toggle/");
 export const SET_WATCH_URL = joinPaths(HOST_API, "watch_video/");
+export const GET_COMMENTS_URL = joinPaths(HOST_API, "comments");
+export const POST_COMMENT_URL = joinPaths(HOST_API, "post-comment/");

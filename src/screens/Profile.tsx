@@ -70,6 +70,7 @@ export default function Profile({ navigation }) {
         numColumns={3}
         key={3}
         renderItem={({ item }) => (
+          item.liked = props.route.key === 'likedVideos',
           <VideoThumbnail
             video={item}
             onPress={() => {

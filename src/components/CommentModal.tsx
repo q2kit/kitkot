@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Modal,
   ScrollView,
@@ -10,72 +10,51 @@ import {
 } from 'react-native'
 import { IconButton } from 'react-native-paper';
 import CommentItem from './CommentItem';
+import { GET_COMMENTS_URL, POST_COMMENT_URL } from '../config';
+import { useAppSelector } from '../redux/hooks';
 
 
 export default function CommentModal({ video, visible, onClose }) {
+  const user = useAppSelector(state => state.user);
   const [inputCommentText, setInputCommentText] = useState('');
-
-  const comments = [
-    {
-      owner: video.owner,
-      comment: "Example commentExample commentExample commentExample commentExample commentExample commentExample commentExample comment",
-      datetime: "2022-10-15 10:00:00",
-    },
-    {
-      owner: video.owner,
-      comment: "Example comment",
-      datetime: "2023-10-15 20:00:00",
-    },
-    {
-      owner: video.owner,
-      comment: "Example comment",
-      datetime: "2023-10-15 10:00:00",
-    },
-    {
-      owner: video.owner,
-      comment: "Example comment",
-      datetime: "2023-10-15 10:00:00",
-    },
-    {
-      owner: video.owner,
-      comment: "Example comment",
-      datetime: "2023-10-15 10:00:00",
-    },
-    {
-      owner: video.owner,
-      comment: "Example comment",
-      datetime: "2023-10-15 10:00:00",
-    },
-    {
-      owner: video.owner,
-      comment: "Example comment",
-      datetime: "2023-10-15 10:00:00",
-    },
-    {
-      owner: video.owner,
-      comment: "Example comment",
-      datetime: "2023-10-15 10:00:00",
-    },
-    {
-      owner: video.owner,
-      comment: "Example comment",
-      datetime: "2023-10-15 10:00:00",
-    },
-    {
-      owner: video.owner,
-      comment: "Example comment",
-      datetime: "2023-10-15 10:00:00",
-    },
-    {
-      owner: video.owner,
-      comment: "Example comment",
-      datetime: "2023-10-15 10:00:00",
-    },
-  ]
+  const [comments, setComments] = useState([]);
+  
+  useEffect(() => {
+    fetch(GET_COMMENTS_URL + `?video_id=${video.id}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${user.accessToken}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        setComments(json.comments);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
 
   const sendComment = () => {
     const text = inputCommentText.trim();
     setInputCommentText('');
+    const fd = new FormData();
+    fd.append('video_id', video.id);
+    fd.append('content', text);
+    fetch(POST_COMMENT_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${user.accessToken}`,
+      },
+      body: fd,
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        setComments([json.comment, ...comments]);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 
   return (
