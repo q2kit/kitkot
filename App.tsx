@@ -8,6 +8,8 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { persistor } from './src/redux/store';
 import Main from './src/screens/Main';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import Toast from 'react-native-toast-message';
+import Notification from './src/components/Notification';
 
 const queryClient = new QueryClient();
 
@@ -23,6 +25,8 @@ function App() {
               backgroundColor="#000"
             />
             <Main />
+            <Toast />
+            <Notification />
           </SafeAreaView>
         </PersistGate>
       </QueryClientProvider>

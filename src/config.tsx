@@ -1,4 +1,4 @@
-function joinPaths(base: string, path: string): string {
+export function joinPaths(base: string, path: string): string {
     const trimmedBase = base.endsWith('/') ? base.slice(0, -1) : base;
     const trimmedPath = path.startsWith('/') ? path.slice(1) : path;
 
@@ -13,3 +13,5 @@ export const RESET_PASSWORD_URL = joinPaths(HOST_API, "reset-password/");
 export const GET_VIDEOS_URL = joinPaths(HOST_API, "videos/");
 export const GET_PROFILE_URL = joinPaths(HOST_API, "profile/");
 export const UPLOAD_VIDEO_URL = joinPaths(HOST_API, "post-video/");
+export const GET_WS_ACCESS_TOKEN_URL = joinPaths(HOST_API, "ws-access-token");
+export const WS_URL = "wss://ws-service.q2k.dev/ws/kitkot/";

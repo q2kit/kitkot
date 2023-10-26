@@ -33,7 +33,9 @@ function Home() {
         itemVisiblePercentThreshold: 50,
       },
       onViewableItemsChanged: ({ viewableItems, changed }) => {
-        setCurrentVideo(viewableItems[0].key);
+        if (viewableItems?.[0]?.key) {
+          setCurrentVideo(viewableItems[0]?.key);
+        }
       },
     },
   ]);
@@ -44,10 +46,11 @@ function Home() {
         data={videos}
         numColumns={1}
         key={1}
-        renderItem={({ item, index }) => (
+        renderItem={({ item }) => (
           <VideoPlayer
             video={item}
             currentVideo={currentVideo}
+            key={`${item.id}_${currentVideo}`}
           />
         )}
         pagingEnabled
