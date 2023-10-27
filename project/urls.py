@@ -30,9 +30,21 @@ from project.views import (
     get_comments,
     get_messages,
     send_message,
+    get_ws_access_token,
+    watch_video,
+    like_toggle,
 )
 
+def video_example(request):
+    from django.shortcuts import redirect
+    return redirect('https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8')
+def video_example2(request):
+    from django.shortcuts import redirect
+    return redirect('https://drive.vnsvs.net/ssstik.io_1694951973186.mp4')
+
 urlpatterns = [
+    path('video_example', video_example),
+    path('video_example2', video_example2),
     path('admin/', admin.site.urls),
 
     path('api/register/', register),
@@ -40,13 +52,17 @@ urlpatterns = [
     path('api/google-auth/', google_auth),
     path('api/reset-password/', reset_password),
     path('api/edit-profile/', edit_profile),
-    path('api/<int:uid>/info/', get_user_info),
+    path('api/profile/<int:uid>/', get_user_info),
+    path('api/ws-access-token', get_ws_access_token),
 
     path('api/post-video/', post_video),
     path('api/videos/', get_videos),
     path('api/<int:owner_id>/videos/', get_videos_by_owner),
     path('api/post-comment/', post_comment),
-    path('api/<int:video_id>/comments/', get_comments),
+    path('api/comments', get_comments),
+
+    path('api/watch_video/<int:video_id>/', watch_video),
+    path('api/like-toggle/', like_toggle),
 
     path('api/send-message/', send_message),
     path('api/<int:receiver_id>/messages/', get_messages),

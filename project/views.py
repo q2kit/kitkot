@@ -23,10 +23,12 @@ from .func import (
     validate_username,
     validate_name,
     generate_access_token,
+    generate_ws_access_token,
     send_mail_otp,
     verify_otp,
     upload_video_to_s3,
     upload_file_to_cloud,
+    upload_file_to_local,
 )
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
@@ -41,7 +43,9 @@ def register(request):
             email = request.POST["email"].lower().strip()
             name = request.POST["name"].strip()
         except Exception:
-            return JsonResponse({"success": False, "message": "Fill all fields"}, status=400)
+            return JsonResponse(
+                {"success": False, "message": "Fill all fields"}, status=400
+            )
 
         validator = [
             (*validate_username(username), "username"),
@@ -51,12 +55,15 @@ def register(request):
 
         for success, message, field in validator:
             if not success:
-                return JsonResponse({
-                    "success": False,
-                    "fields": {
-                        field: message,
-                    }
-                }, status=400)
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "fields": {
+                            field: message,
+                        },
+                    },
+                    status=400,
+                )
 
         check_exists = (
             (
@@ -115,19 +122,22 @@ def login(request):
             login_id = request.POST["login_id"].lower().strip()
             password = request.POST["password"]
         except KeyError:
-            return JsonResponse({"success": False, "message": "Fill all fields"}, status=400)
+            return JsonResponse(
+                {"success": False, "message": "Fill all fields"}, status=400
+            )
 
         try:
-            user = User.objects.annotate(
-                liked=Count("watched", filter=Q(watched__liked=True))
-            ).get(Q(username=login_id) | Q(email=login_id))
+            user = User.objects.get(Q(username=login_id) | Q(email=login_id))
         except User.DoesNotExist:
-            return JsonResponse({
-                "success": False,
-                "fields": {
-                    "password": "Wrong password",
-                }
-            }, status=401)
+            return JsonResponse(
+                {
+                    "success": False,
+                    "fields": {
+                        "password": "Wrong password",
+                    },
+                },
+                status=401,
+            )
 
         userJSON = {
             "uid": user.pk,
@@ -137,7 +147,7 @@ def login(request):
             "avatar": user.avatar or DEFAULT_AVATAR,
             "followers": user.followers.count(),
             "following": user.following.count(),
-            "liked": user.liked,
+            "likes": Watched.objects.filter(video__owner=user, liked=True).count(),
             "is_premium": user.is_premium,
             "videos": user.videos.count(),
         }
@@ -156,12 +166,15 @@ def login(request):
                 status=200,
             )
         else:
-            return JsonResponse({
-                "success": False,
-                "fields": {
-                    "password": "Wrong password",
-                }
-            }, status=401)
+            return JsonResponse(
+                {
+                    "success": False,
+                    "fields": {
+                        "password": "Wrong password",
+                    },
+                },
+                status=401,
+            )
 
     return JsonResponse({"success": False, "message": "Method not allowed"}, status=405)
 
@@ -171,7 +184,9 @@ def google_auth(request):
         try:
             g_token = request.POST["g_token"].strip()
         except KeyError:
-            return JsonResponse({"success": False, "message": "Fill all fields"}, status=400)
+            return JsonResponse(
+                {"success": False, "message": "Fill all fields"}, status=400
+            )
 
         try:
             G_CLIENT_ID = os.environ.get("G_CLIENT_ID")
@@ -241,7 +256,9 @@ def google_auth(request):
                     status=201,
                 )
         except Exception as e:
-            return JsonResponse({"success": False, "message": "Wrong token"}, status=401)
+            return JsonResponse(
+                {"success": False, "message": "Wrong token"}, status=401
+            )
     return JsonResponse({"success": False, "message": "Method not allowed"}, status=405)
 
 
@@ -250,7 +267,9 @@ def reset_password(request):
         try:
             email = request.POST["email"].lower().strip()
         except KeyError:
-            return JsonResponse({"success": False, "message": "Fill all fields"}, status=400)
+            return JsonResponse(
+                {"success": False, "message": "Fill all fields"}, status=400
+            )
 
         if "otp" in request.POST:  # step 2
             otp = request.POST["otp"]
@@ -262,11 +281,17 @@ def reset_password(request):
                         (new_password + SECRET_KEY).encode("utf-8")
                     ).hexdigest()
                     user.save()
-                    return JsonResponse({"success": True, "message": "Password changed"}, status=200)
+                    return JsonResponse(
+                        {"success": True, "message": "Password changed"}, status=200
+                    )
                 except KeyError:
-                    return JsonResponse({"success": False, "message": "Fill all fields"}, status=400)
+                    return JsonResponse(
+                        {"success": False, "message": "Fill all fields"}, status=400
+                    )
             else:
-                return JsonResponse({"success": False, "message": "Wrong OTP"}, status=401)
+                return JsonResponse(
+                    {"success": False, "message": "Wrong OTP"}, status=401
+                )
 
         else:  # step 1
             try:
@@ -313,7 +338,9 @@ def edit_profile(request):
             avatar = request.FILES.get("avatar", None)
             new_password = request.POST.get("new_password", "").strip()
         except KeyError:
-            return JsonResponse({"success": False, "message": "Enter your password"}, status=400)
+            return JsonResponse(
+                {"success": False, "message": "Enter your password"}, status=400
+            )
 
         validator = [
             validate_username(username) if username else (True, ""),
@@ -346,7 +373,9 @@ def edit_profile(request):
             hashlib.sha512((password + SECRET_KEY).encode("utf-8")).hexdigest()
             != request.user.password
         ):
-            return JsonResponse({"success": False, "message": "Wrong password"}, status=401)
+            return JsonResponse(
+                {"success": False, "message": "Wrong password"}, status=401
+            )
 
         if new_password:
             request.user.password = hashlib.sha512(
@@ -362,7 +391,9 @@ def edit_profile(request):
         if avatar:
             request.user.avatar = upload_file_to_cloud(avatar)
         request.user.save()
-        return JsonResponse({"success": True, "message": "User info updated"}, status=200)
+        return JsonResponse(
+            {"success": True, "message": "User info updated"}, status=200
+        )
     elif request.method == "GET":
         return JsonResponse(
             {
@@ -381,27 +412,53 @@ def edit_profile(request):
 @auth_pass(["GET"])
 def get_user_info(request, uid):
     try:
-        user = User.objects.get(pk=uid)
+        user = User.objects.prefetch_related("videos", "videos__watched_set").get(
+            pk=uid
+        )
     except User.DoesNotExist:
         return JsonResponse({"success": False, "message": "User not found"}, status=404)
-    likes = sum([video.likes_count for video in user.videos.all()])
-    return JsonResponse(
-        {
-            "success": True,
-            "user": {
-                "name": user.name,
-                "username": user.username,
-                "email": user.email,
-                "avatar": user.avatar or DEFAULT_AVATAR,
-                "is_premium": user.is_premium,
-                "videos": user.videos.count(),
-                "followers": user.followers.count(),
-                "following": user.following.count(),
-                "likes": likes,
-            },
-        },
-        status=200,
-    )
+    result = {
+        "name": user.name,
+        "username": user.username,
+        "avatar": user.avatar or DEFAULT_AVATAR,
+        "is_premium": user.is_premium,
+        "followers": user.followers.count(),
+        "following": user.following.count(),
+        "likes": sum([video.likes_count for video in user.videos.all()]),
+        "show_liked_videos": user.show_liked_videos,
+        "show_watched_videos": user.show_watched_videos,
+    }
+    if user == request.user:
+        result["email"] = user.email
+        result["videos"] = {
+            "publicVideos": [video.json() for video in user.videos.filter(is_private=False)],
+            "privateVideos": [video.json() for video in user.videos.filter(is_private=True)],
+            "likedVideos": [watched.video.json() for watched in Watched.objects.filter(user=user, liked=True)],
+            "watchedVideos": [watched.video.json() for watched in Watched.objects.filter(user=user)],
+        }
+    else:
+        result["videos"] = {
+            "publicVideos": [video.json() for video in user.videos.filter(
+                is_private=False,
+                is_premium=request.user.is_premium
+            )],
+            "likedVideos": [watched.video.json() for watched in Watched.objects.filter(
+                user=user,
+                user__show_liked_videos=True,
+                liked=True,
+                video__is_premium=request.user.is_premium,
+            )],
+            "watchedVideos": [watched.video.json() for watched in Watched.objects.filter(
+                user=user,
+                user__show_watched_videos=True,
+                video__is_premium=request.user.is_premium,
+            )],
+        }
+
+    return JsonResponse({
+        "success": True,
+        "user": result,
+    })
 
 
 @auth_pass(["POST"])
@@ -409,15 +466,14 @@ def post_video(request):
     try:
         description = request.POST["description"]
         is_premium = request.POST.get("is_premium") == "true"
+        is_private = request.POST.get("is_private") == "true"
         video = request.FILES["video"]
     except KeyError:
         return JsonResponse(
             {"success": False, "message": "Fill all fields"}, status=400
         )
 
-    content_type_allow_list = (
-        "video/mp4",
-    )
+    content_type_allow_list = ("video/mp4",)
 
     if video.content_type not in content_type_allow_list:
         return JsonResponse(
@@ -430,16 +486,21 @@ def post_video(request):
         )
 
     try:
-        # link = upload_video_to_s3(video)
-        link = upload_file_to_cloud(video)
+        link, thumbnail = upload_file_to_local(video)
+        link = "https://kitkot.q2k.dev/videos/" + link
+        thumbnail = "https://kitkot.q2k.dev/thumbnails/" + thumbnail
     except Exception:
-        return JsonResponse({"success": False, "message": "Error uploading video"}, status=500)
+        return JsonResponse(
+            {"success": False, "message": "Error uploading video"}, status=500
+        )
 
     video = Video.objects.create(
         owner=request.user,
         description=description,
         link=link,
+        thumbnail=thumbnail,
         is_premium=is_premium,
+        is_private=is_private,
     )
 
     return JsonResponse({"success": True, "message": "Video posted"}, status=201)
@@ -452,6 +513,7 @@ def get_videos(request):
     )
     videos = (
         Video.objects.exclude(pk__in=watched)
+        .exclude(owner=request.user)
         .order_by("-id")
         .annotate(
             owner_name=F("owner__name"),
@@ -463,30 +525,50 @@ def get_videos(request):
                     user=request.user, video=OuterRef("pk"), liked=True
                 )
             ),
-            liked=Count("watched", filter=Q(watched__liked=True)),
-            watched_count=Count("watched"),
-            comment=Count("comments"),
+            likes=Count("watched", filter=Q(watched__liked=True)),
+            views=Count("watched"),
+            comments_count=Count("comments"),
         )
         .values(
             "id",
             "description",
             "link",
-            "owner_id",
             "owner_name",
             "owner_avatar",
             "owner_preminum",
             "is_followed",
             "is_liked",
+            "likes",
+            "views",
+            "comments_count",
             "is_premium",
-            "liked",
-            "watched_count",
-            "comment",
         )
     )
     if not request.user.is_premium:
         videos = videos.filter(is_premium=False)
 
-    return JsonResponse({"success": True, "videos": list(videos)}, status=200)
+    result = []
+    for video in videos:
+        result.append(
+            {
+                "id": video["id"],
+                "description": video["description"],
+                "uri": video["link"],
+                "owner": {
+                    "name": video["owner_name"],
+                    "avatar": video["owner_avatar"],
+                    "is_premium": video["owner_preminum"],
+                    "is_followed": video["is_followed"],
+                },
+                "is_liked": video["is_liked"],
+                "likes": video["likes"],
+                "views": video["views"],
+                "comments": video["comments_count"],
+                "is_premium": video["is_premium"],
+            }
+        )
+
+    return JsonResponse({"success": True, "videos": result}, status=200)
 
 
 @auth_pass(["GET"])
@@ -537,9 +619,7 @@ def like_toggle(request):
             {"success": False, "message": "You can't like your own video"}
         )
 
-    watched = Watched.objects.get_or_create(user=request.user, video=video)[
-        0
-    ]  # [0] is the object, [1] is a boolean
+    watched, _ = Watched.objects.get_or_create(user=request.user, video=video)
     watched.liked = not watched.liked
     watched.save()
 
@@ -581,7 +661,7 @@ def post_comment(request):
             {"success": False, "message": "You must watch the video before commenting"}
         )
 
-    Comment.objects.create(
+    comment = Comment.objects.create(
         owner=request.user,
         video=video,
         content=content,
@@ -591,32 +671,41 @@ def post_comment(request):
         {
             "success": True,
             "message": "Comment posted",
+            "comment": {
+                "owner": {
+                    "name": request.user.name,
+                    "avatar": request.user.avatar or DEFAULT_AVATAR,
+                },
+                "comment": content,
+                "datetime": comment.created_at,
+            }
         }
     )
 
 
 @auth_pass(["GET"])
-def get_comments(request, video_id):
+def get_comments(request):
     try:
+        video_id = request.GET["video_id"]
         video = Video.objects.get(pk=video_id)
     except Video.DoesNotExist:
         return JsonResponse({"success": False, "message": "Video not found"})
 
     comments = (
         video.comments.all()
+        .select_related("owner")
         .order_by("-id")
-        .annotate(
-            owner_name=F("owner__name"),
-            owner_avatar=F("owner__avatar"),
-        )
-        .values(
-            "content",
-            "owner_name",
-            "owner_avatar",
-        )
     )
+    comments = [{
+        "owner": {
+            "name": comment.owner.name,
+            "avatar": comment.owner.avatar or DEFAULT_AVATAR,
+        },
+        "comment": comment.content,
+        "datetime": comment.created_at,
+    } for comment in comments]
 
-    return JsonResponse({"success": True, "comments": list(comments)})
+    return JsonResponse({"success": True, "comments": comments})
 
 
 @auth_pass(["POST"])
@@ -673,3 +762,28 @@ def get_messages(request, receiver_id):
     ]
 
     return JsonResponse({"success": True, "messages": messages})
+
+
+@auth_pass(["GET"])
+def get_ws_access_token(request):
+    return JsonResponse({
+        "success": True,
+        "token": generate_ws_access_token(request.user.pk),
+    })
+
+
+@auth_pass(["GET"])
+def watch_video(request, video_id):
+    try:
+        video = Video.objects.get(pk=video_id)
+    except Exception:
+        return JsonResponse({"success": False, "message": "Video not found"})
+
+    if video.owner == request.user:
+        return JsonResponse(
+            {"success": False, "message": "You can't watch your own video"}
+        )
+
+    Watched.objects.get_or_create(user=request.user, video=video)
+
+    return JsonResponse({"success": True, "message": "OK"})

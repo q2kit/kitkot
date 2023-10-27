@@ -13,6 +13,7 @@ import jwt
 import datetime
 import boto3
 from uuid import uuid4
+import ffmpeg
 
 
 def validate_email(email):
@@ -26,7 +27,10 @@ def validate_username(username):
     if re.match(r"^[a-zA-Z0-9_]{3,}$", username):
         return True, ""
     else:
-        return False, "Invalid username, should be at least 3 characters and only contain letters, numbers and _"
+        return (
+            False,
+            "Invalid username, should be at least 3 characters and only contain letters, numbers and _",
+        )
 
 
 def validate_name(name):
@@ -40,9 +44,10 @@ def send_mail_otp(email):
     otp = str(random.randint(100000, 999999))
     cache.set(email, otp)
 
-    ICLOUD_ACCOUNT = os.environ.get("ICLOUD_ACCOUNT")
-    ICLOUD_PASS = os.environ.get("ICLOUD_PASS")
-    ICLOUD_SENDER = os.environ.get("ICLOUD_SENDER")
+    SMTP_HOST = os.environ.get("SMTP_HOST")
+    SMTP_ACCOUNT = os.environ.get("SMTP_ACCOUNT")
+    SMTP_PASS = os.environ.get("SMTP_PASS")
+    SMTP_SENDER = os.environ.get("SMTP_SENDER")
     SENDER_NAME = "KitKot Team"
     SUBJECT = "KitKot - OTP"
     MESSAGE = f"""
@@ -58,17 +63,17 @@ def send_mail_otp(email):
     """
 
     msg = MIMEMultipart()
-    msg["From"] = formataddr((SENDER_NAME, ICLOUD_SENDER))
+    msg["From"] = formataddr((SENDER_NAME, SMTP_SENDER))
     msg["To"] = email
     msg["Subject"] = SUBJECT
     msg.attach(MIMEText(MESSAGE, "html"))
 
     try:
-        with smtplib.SMTP('smtp.mail.me.com', 587) as smtp:
+        with smtplib.SMTP(SMTP_HOST, 587) as smtp:
             smtp.ehlo()
             smtp.starttls()
-            smtp.login(ICLOUD_ACCOUNT, ICLOUD_PASS)
-            smtp.sendmail(ICLOUD_SENDER, email, msg.as_string())
+            smtp.login(SMTP_ACCOUNT, SMTP_PASS)
+            smtp.sendmail(SMTP_SENDER, email, msg.as_string())
     except Exception as e:
         cache.delete(email)
 
@@ -83,11 +88,28 @@ def verify_otp(email, otp):
 
 def generate_access_token(uid):
     SECRET_KEY = os.environ.get("SECRET_KEY")
-    return jwt.encode({
-        "uid": uid,
-        "exp": datetime.datetime.utcnow() + datetime.timedelta(days=30),
-        "iat": datetime.datetime.utcnow(),
-    }, SECRET_KEY, algorithm="HS256")
+    return jwt.encode(
+        {
+            "uid": uid,
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(days=30),
+            "iat": datetime.datetime.utcnow(),
+        },
+        SECRET_KEY,
+        algorithm="HS256",
+    )
+
+
+def generate_ws_access_token(id):
+    SECRET_KEY = os.environ.get("WS_SECRET_KEY")
+    return jwt.encode(
+        {
+            "id": id,
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=30),
+            "iat": datetime.datetime.utcnow(),
+        },
+        SECRET_KEY,
+        algorithm="HS256",
+    )
 
 
 def verify_access_token(token):
@@ -97,7 +119,7 @@ def verify_access_token(token):
         return data["uid"]
     except:
         return None
-    
+
 
 def upload_video_to_s3(video):
     AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
@@ -118,7 +140,7 @@ def upload_video_to_s3(video):
         filename,
         ExtraArgs={
             "ContentType": video.content_type,
-        }
+        },
     )
 
     return f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/{filename}"
@@ -130,3 +152,21 @@ def upload_file_to_cloud(file):
         "file": file,
     }
     return requests.post(url, files=files).text
+
+
+def upload_file_to_local(file):
+    root_folder = "/var/www/kitkot.q2k.dev/videos"
+    filename = str(uuid4().hex) + "." + file.name.split(".")[-1]
+    filepath = os.path.join(root_folder, filename)
+    with open(filepath, "wb+") as destination:
+        for chunk in file.chunks():
+            destination.write(chunk)
+    return filename, create_thumbnail(filepath)
+
+
+def create_thumbnail(filepath):
+    thumbnail = str(uuid4().hex) + ".jpg"
+    ffmpeg.input(filepath).filter("scale", 320, -1).output(
+        os.path.join("/var/www/kitkot.q2k.dev/thumbnails", thumbnail), vframes=1
+    ).run()
+    return thumbnail
