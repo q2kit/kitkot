@@ -18,8 +18,6 @@ import { LIKE_TOGGLE_URL } from '../config';
 
 export default function VideoPlayerModal({ visible, video, onClose }) {
   if (!video) return null;
-  console.log(video);
-  
   const user = useAppSelector(state => state.user);
   const [isPlaying, setIsPlaying] = useState(true);
   const [liked, setLiked] = useState(video.liked);
@@ -92,7 +90,7 @@ export default function VideoPlayerModal({ visible, video, onClose }) {
         </TouchableWithoutFeedback>
       </View>
       <Image
-        source={{ uri: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B" }}
+        source={{ uri: video.owner.avatar }}
         style={styles.ownerAvatar}
       />
       <IconButton

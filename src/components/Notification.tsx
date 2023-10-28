@@ -23,7 +23,6 @@ function Notification() {
       const ws = new WebSocket(joinPaths(WS_URL, token));
       const connectSocket = (clearReconect?: () => void) => {
         ws.onopen = () => {
-          console.log('open socket');
           clearReconect?.();
         };
 
@@ -41,7 +40,6 @@ function Notification() {
       };
       return () => {
         ws.close = () => {
-          console.log('close socket');
         };
       };
     }).catch(err => console.error(err));

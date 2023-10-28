@@ -62,10 +62,14 @@ export default function VideoPlayer({ video, currentVideo }) {
     setIsMorePressed(!isMorePressed);
   };
   const onFollowPress = () => {
+    if (!isFollowed) {
+      setTimeout(() => {
+        setIsShowFollowBtn(false);
+      }, 1000);
+    } else {
+      setIsShowFollowBtn(true);
+    }
     setIsFollowed(!isFollowed);
-    setTimeout(() => {
-      setIsShowFollowBtn(false);
-    }, 1000);
   };
   const onVideoPress = () => {
     setIsPlaying(!isPlaying);
@@ -82,7 +86,7 @@ export default function VideoPlayer({ video, currentVideo }) {
           { width: layout.width, height: layout.height - statusBarHeight - bottomTabHeight },
         ]}>
           <Video
-            source={video}
+            source={{uri: video.link}}
             style={styles.video}
             controls={false}
             resizeMode="contain"
@@ -131,6 +135,7 @@ export default function VideoPlayer({ video, currentVideo }) {
         visible={isProfileModalVisible}
         onClose={() => setProfileModalVisible(false)}
         user_id={video.owner.id}
+        onFollowToggle={onFollowPress}
       />
       <IconButton
         icon={

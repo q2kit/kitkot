@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   FlatList,
   Image,
@@ -11,144 +11,53 @@ import { Button, IconButton } from 'react-native-paper';
 import VideoThumbnail from './VideoThumbnail';
 import VideoPlayerModal from './VideoPlayerModal';
 import Modal from 'react-native-modal';
-
-const getUserInfo = (id: number) => {
-  return {
-    avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
-    name: "Nguyeenx Vawn A",
-    username: "nguyeenxvawn",
-    followers: 100,
-    following: 100,
-    likes: 100,
-    is_following: true,
-    is_preminum: true,
-  }
-}
-
-const videodata = [
-  {
-    key: 'a',
-    uri: "https://kitkot.q2k.dev/video_example",
-    thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
-    owner: {
-      name: "Nguyeenx Vawn A",
-      avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
-    },
-    liked: true,
-    likes: 100,
-    views: 122200000,
-    comments: 10200,
-    is_premium: true,
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget aliquam ultricies, nunc nisl ultricies nunc, quis ultri",
-  },
-  {
-    key: 'b',
-    uri: "https://kitkot.q2k.dev/video_example2",
-    thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
-    owner: {
-      name: "Nguyeenx Vawn A",
-      avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
-    },
-    liked: true,
-    likes: 100,
-    views: 1000,
-    comments: 10200,
-    description: "Example description",
-  },
-  {
-    key: 'c',
-    uri: "https://kitkot.q2k.dev/video_example",
-    thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
-    owner: {
-      name: "Nguyeenx Vawn A",
-      avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
-    },
-    liked: true,
-    likes: 100,
-    views: 1000,
-    comments: 10200,
-    is_premium: true,
-    description: "Example description",
-  },
-  {
-    key: 'd',
-    uri: "https://kitkot.q2k.dev/video_example2",
-    thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
-    owner: {
-      name: "Nguyeenx Vawn A",
-      avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
-    },
-    liked: true,
-    likes: 100,
-    views: 1000,
-    comments: 10200,
-    description: "Example description",
-  },
-  {
-    key: 'e',
-    uri: "https://kitkot.q2k.dev/video_example2",
-    thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
-    owner: {
-      name: "Nguyeenx Vawn A",
-      avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
-    },
-    liked: true,
-    likes: 100,
-    views: 1000,
-    comments: 10200,
-    description: "Example description",
-  },
-  {
-    key: 'f',
-    uri: "https://kitkot.q2k.dev/video_example2",
-    thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
-    owner: {
-      name: "Nguyeenx Vawn A",
-      avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
-    },
-    liked: true,
-    likes: 100,
-    views: 1000,
-    comments: 10200,
-    description: "Example description",
-  },
-  {
-    key: 'g',
-    uri: "https://kitkot.q2k.dev/video_example2",
-    thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
-    owner: {
-      name: "Nguyeenx Vawn A",
-      avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
-    },
-    liked: true,
-    likes: 100,
-    views: 1000,
-    comments: 10200,
-    description: "Example description",
-  },
-  {
-    key: 'h',
-    uri: "https://kitkot.q2k.dev/video_example2",
-    thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
-    owner: {
-      name: "Nguyeenx Vawn A",
-      avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
-    },
-    liked: true,
-    likes: 100,
-    views: 1000,
-    comments: 10200,
-    description: "Example description",
-  },
-];
+import { GET_PROFILE_URL } from '../config';
+import { useAppSelector } from '../redux/hooks';
 
 
-export default function ProfileModal({ user_id, visible, onClose }) {
-  const userInfo = getUserInfo(user_id);
+export default function ProfileModal({ user_id, visible, onClose, onFollowToggle }) {
+  const user = useAppSelector(state => state.user);
+  const [userInfo, setUserInfo] = React.useState({
+    avatar: "",
+    name: "",
+    username: "",
+    followers: 0,
+    following: 0,
+    likes: 0,
+    is_following: false,
+    is_preminum: false,
+  });
   const [isModalVisible, setModalVisible] = React.useState(false);
   const [videoModal, setVideoModal] = React.useState(null);
   const [followers, setFollowers] = React.useState(userInfo.followers);
   const [is_following, setIsFollowing] = React.useState(userInfo.is_following);
+  const [videos, setVideos] = useState([]);
+
+  useEffect(() => {
+    fetch(GET_PROFILE_URL + user_id + "/", {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${user.accessToken}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        setVideos(json.user.videos);
+        setUserInfo({
+          avatar: json.user.avatar,
+          name: json.user.name,
+          username: json.user.username,
+          followers: json.user.followers,
+          following: json.user.following,
+          likes: json.user.likes,
+          is_following: json.user.is_following,
+          is_preminum: json.user.is_preminum,
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
 
   const handleFollow = () => {
     setIsFollowing(!is_following);
@@ -157,6 +66,7 @@ export default function ProfileModal({ user_id, visible, onClose }) {
     } else {
       setFollowers(followers + 1);
     }
+    onFollowToggle();
   }
 
   const handleContact = () => {
@@ -251,7 +161,7 @@ export default function ProfileModal({ user_id, visible, onClose }) {
           </Button>
         </View>
         <FlatList
-          data={videodata}
+          data={videos}
           numColumns={3}
           key={3}
           renderItem={({ item }) => (

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { PureComponent } from 'react'
 import {
   TouchableWithoutFeedback,
   StyleSheet,
@@ -9,32 +9,35 @@ import {
 import { IconButton } from 'react-native-paper'
 import { convertToK } from '../utils/Functions'
 
-export default function VideoThumbnail({ video, onPress }) {
-  return (
-    <TouchableWithoutFeedback onPress={onPress}>
-      <View style={styles.container}>
-        <Image
-          source={{ uri: video.thumbnail }}
-          style={styles.thumbnail}
-          resizeMode="center"
-        />
-        <IconButton
-          icon={require('../assets/view.png')}
-          style={styles.viewIcon}
-          iconColor='#fff'
-          size={20}
-        />
-        <Text style={styles.viewCount}>{convertToK(video.views)}</Text>
-        {video.is_premium && (
+export default class VideoThumbnail extends PureComponent {
+  render() {
+    const { video, onPress } = this.props
+    return (
+      <TouchableWithoutFeedback onPress={onPress}>
+        <View style={styles.container}>
           <Image
-            source={require('../assets/premium.png')}
-            style={styles.premiumIcon}
+            source={{ uri: video.thumbnail }}
+            style={styles.thumbnail}
             resizeMode="center"
           />
-        )}
-      </View>
-    </TouchableWithoutFeedback>
-  )
+          <IconButton
+            icon={require('../assets/view.png')}
+            style={styles.viewIcon}
+            iconColor='#fff'
+            size={20}
+          />
+          <Text style={styles.viewCount}>{convertToK(video.views)}</Text>
+          {video.is_premium && (
+            <Image
+              source={require('../assets/premium.png')}
+              style={styles.premiumIcon}
+              resizeMode="center"
+            />
+          )}
+        </View>
+      </TouchableWithoutFeedback>
+    )
+  }
 }
 
 const styles = StyleSheet.create({

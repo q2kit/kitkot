@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -8,73 +8,52 @@ import {
 import VideoThumbnail from "../components/VideoThumbnail";
 import VideoPlayerModal from "../components/VideoPlayerModal";
 import { IconButton } from "react-native-paper";
+import { GET_EXPLORE_VIDEOS_URL } from "../config";
+import { useAppSelector } from "../redux/hooks";
 
 export default function Explore({ navigation }) {
+  const user = useAppSelector(state => state.user);
   const [isModalVisible, setModalVisible] = useState(false);
   const [videoModal, setVideoModal] = useState(null);
   const [searchText, setSearchText] = useState("");
-  const getData = () => {
-    return [
-    {
-      key: 'a',
-      uri: "https://kitkot.q2k.dev/video_example",
-      thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
-      owner: {
-        name: "Nguyeenx Vawn A",
-        avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
+  const [videos, setVideos] = useState([]);
+  const [page, setPage] = useState(1);
+  const [isEnd, setIsEnd] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useEffect(() => {
+    fetch(GET_EXPLORE_VIDEOS_URL + `?page=${page}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${user.accessToken}`,
       },
-      liked: true,
-      likes: 100,
-      views: 122200000,
-      comments: 10200,
-      is_premium: true,
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget aliquam ultricies, nunc nisl ultricies nunc, quis ultri",
-    },
-    {
-      key: 'b',
-      uri: "https://kitkot.q2k.dev/video_example2",
-      thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
-      owner: {
-        name: "Nguyeenx Vawn A",
-        avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
+    }).then((response) => response.json())
+      .then((json) => {
+        setVideos(json.videos);
+        setIsEnd(!json.has_next);
+      })
+      .catch((error) => console.error(error))
+  }, []);
+
+  const getMoreVideos = () => {
+    if (isEnd || isRefreshing) {
+      return;
+    }
+    setIsRefreshing(true);
+    fetch(GET_EXPLORE_VIDEOS_URL + `?page=${page + 1}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${user.accessToken}`,
       },
-      liked: true,
-      likes: 100,
-      views: 1000,
-      comments: 10200,
-      description: "Example description",
-    },
-    {
-      key: 'c',
-      uri: "https://kitkot.q2k.dev/video_example",
-      thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
-      owner: {
-        name: "Nguyeenx Vawn A",
-        avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
-      },
-      liked: true,
-      likes: 100,
-      views: 1000,
-      comments: 10200,
-      is_premium: true,
-      description: "Example description",
-    },
-    {
-      key: 'd',
-      uri: "https://kitkot.q2k.dev/video_example2",
-      thumbnail: "https://cdn.tgdd.vn/Files/2017/02/16/950437/anhthunho1_800x450.jpg",
-      owner: {
-        name: "Nguyeenx Vawn A",
-        avatar: "https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B",
-      },
-      liked: true,
-      likes: 100,
-      views: 1000,
-      comments: 10200,
-      description: "Example description",
-    },
-  ];
-  }
+    }).then((response) => response.json())
+      .then((json) => {
+        setVideos([...videos, ...json.videos]);
+        setIsEnd(!json.has_next);
+        setPage(page + 1);
+        setIsRefreshing(false);
+      })
+      .catch((error) => console.error(error))
+  };
 
   const onSearch = () => {
   };
@@ -98,7 +77,7 @@ export default function Explore({ navigation }) {
       </View>
       <FlatList
         style={styles.list}
-        data={getData()}
+        data={videos}
         numColumns={3}
         key={3}
         renderItem={({ item }) => (
@@ -110,6 +89,7 @@ export default function Explore({ navigation }) {
             }}
           />
         )}
+        onEndReached={getMoreVideos}
       />
       <VideoPlayerModal
         visible={isModalVisible}
