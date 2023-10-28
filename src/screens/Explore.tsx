@@ -10,6 +10,7 @@ import VideoPlayerModal from "../components/VideoPlayerModal";
 import { IconButton } from "react-native-paper";
 import { GET_EXPLORE_VIDEOS_URL } from "../config";
 import { useAppSelector } from "../redux/hooks";
+import GifLoadingBottom from "../components/GifLoadingBottom";
 
 export default function Explore({ navigation }) {
   const user = useAppSelector(state => state.user);
@@ -90,6 +91,18 @@ export default function Explore({ navigation }) {
           />
         )}
         onEndReached={getMoreVideos}
+        ListFooterComponent={() => {
+          return (
+            <GifLoadingBottom
+              size={30}
+              style={{ marginBottom: 5 }}
+              visible={isRefreshing}
+            />
+          )
+        }}
+        ListFooterComponentStyle={{
+          height: 40,
+        }}
       />
       <VideoPlayerModal
         visible={isModalVisible}
