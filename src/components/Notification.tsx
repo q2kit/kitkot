@@ -13,6 +13,9 @@ function Notification() {
   const user = useAppSelector(state => state.user);
   const dispatch = useAppDispatch();
   useEffect(() => {
+    if (!user.accessToken) {
+      return;
+    }
     fetch(GET_WS_ACCESS_TOKEN_URL, {
       method: 'GET',
       headers: {

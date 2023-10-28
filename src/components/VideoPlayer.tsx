@@ -22,9 +22,10 @@ import {
 import { useAppSelector } from '../redux/hooks';
 import axios from 'axios';
 
-export default function VideoPlayer({ video, currentVideo }) {
+export default function VideoPlayer({ video, currentVideo, index }) {
   const user = useAppSelector(state => state.user);
-  const [isPlaying, setIsPlaying] = useState(currentVideo == video.id);
+  const [isPlaying, setIsPlaying] = useState(currentVideo == index);
+  console.log(index, currentVideo, isPlaying, (currentVideo == index));
   const likeToggle = () => {
     const fd = new FormData();
     fd.append('video_id', video.id);
@@ -50,6 +51,7 @@ export default function VideoPlayer({ video, currentVideo }) {
   const [isCommentModalVisible, setCommentModalVisible] = useState(false);
   const [isProfileModalVisible, setProfileModalVisible] = useState(false);
   const [isFollowed, setIsFollowed] = useState(video.owner.is_followed);
+  const [readyPlay, setReadyPlay] = useState(false);
   const [isShowFollowBtn, setIsShowFollowBtn] = useState(
     !video.owner.is_followed,
   );
@@ -87,11 +89,17 @@ export default function VideoPlayer({ video, currentVideo }) {
         ]}>
           <Video
             source={{uri: video.link}}
-            style={styles.video}
+            style={[styles.video, { display: readyPlay ? 'flex' : 'none' }]}
             controls={false}
             resizeMode="contain"
             repeat={true}
             paused={!isPlaying}
+            onReadyForDisplay={() => setReadyPlay(true)}
+          />
+          <Image
+            source={{ uri: video.thumbnail }}
+            style={[styles.thumbnail, { display: readyPlay ? 'none' : 'flex' }]}
+            resizeMode="center"
           />
           {!isPlaying && (
             <IconButton
@@ -179,6 +187,11 @@ const styles = StyleSheet.create({
   },
   video: {
     flex: 1,
+  },
+  thumbnail: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
   },
   playBtn: {
     width: 70,

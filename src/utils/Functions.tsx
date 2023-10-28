@@ -50,3 +50,10 @@ export function convertDatetime(datetime: string) {
   }
   return distance;
 }
+export function roundNumber(number) {
+  if (number - Math.floor(number) < 0.5) {
+    return Math.floor(number);
+  } else {
+    return Math.ceil(number);
+  }
+}

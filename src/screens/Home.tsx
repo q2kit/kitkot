@@ -63,8 +63,8 @@ function Home() {
         itemVisiblePercentThreshold: 50,
       },
       onViewableItemsChanged: ({ viewableItems, changed }) => {
-        if (viewableItems?.[0]?.key) {
-          setCurrentVideo(viewableItems[0]?.key);
+        if (viewableItems?.[0]?.index) {
+          setCurrentVideo(viewableItems[0]?.index);
         }
       },
     },
@@ -77,13 +77,11 @@ function Home() {
         numColumns={1}
         key={1}
         renderItem={({ item, index }) => {
-          console.info(index);
-          
           return (
             <VideoPlayer
               video={item}
+              index={index}
               currentVideo={currentVideo}
-              key={`${item.id}`}
             />
           )
         }}
@@ -92,9 +90,6 @@ function Home() {
         showsVerticalScrollIndicator={false}
         viewabilityConfigCallbackPairs={viewabilityConfigCallbackPairs.current}
         onEndReached={getMoreVideos}
-        onMomentumScrollEnd={(event) => {
-          // console.info(event);
-        }}
       />
     </View>
   );
