@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.db.models import Q, Exists, OuterRef, Count, F
 from django.core.cache import cache
+from django.core.paginator import Paginator
 
 from .models import (
     User,
@@ -431,34 +432,33 @@ def get_user_info(request, uid):
     if user == request.user:
         result["email"] = user.email
         result["videos"] = {
-            "publicVideos": [video.json() for video in user.videos.filter(is_private=False)],
-            "privateVideos": [video.json() for video in user.videos.filter(is_private=True)],
-            "likedVideos": [watched.video.json() for watched in Watched.objects.filter(user=user, liked=True)],
-            "watchedVideos": [watched.video.json() for watched in Watched.objects.filter(user=user)],
+            "publicVideos": [
+                video.json() for video in user.videos.filter(is_private=False)
+            ],
+            "privateVideos": [
+                video.json() for video in user.videos.filter(is_private=True)
+            ],
+            "likedVideos": [
+                watched.video.json()
+                for watched in Watched.objects.filter(user=user, liked=True)
+            ],
+            "watchedVideos": [
+                watched.video.json() for watched in Watched.objects.filter(user=user)
+            ],
         }
     else:
-        result["videos"] = {
-            "publicVideos": [video.json() for video in user.videos.filter(
-                is_private=False,
-                is_premium=request.user.is_premium
-            )],
-            "likedVideos": [watched.video.json() for watched in Watched.objects.filter(
-                user=user,
-                user__show_liked_videos=True,
-                liked=True,
-                video__is_premium=request.user.is_premium,
-            )],
-            "watchedVideos": [watched.video.json() for watched in Watched.objects.filter(
-                user=user,
-                user__show_watched_videos=True,
-                video__is_premium=request.user.is_premium,
-            )],
-        }
+        result["is_following"] = request.user.following.filter(pk=user.pk).exists()
+        videos = user.videos.filter(
+            is_private=False, is_premium=request.user.is_premium
+        )
+        result["videos"] = [video.json() for video in videos]
 
-    return JsonResponse({
-        "success": True,
-        "user": result,
-    })
+    return JsonResponse(
+        {
+            "success": True,
+            "user": result,
+        }
+    )
 
 
 @auth_pass(["POST"])
@@ -508,12 +508,15 @@ def post_video(request):
 
 @auth_pass(["GET"])
 def get_videos(request):
+    page = int(request.GET.get("page", 1))
+    videoPerPage = 5
     watched = Watched.objects.filter(user=request.user).values_list(
         "video_id", flat=True
     )
     videos = (
         Video.objects.exclude(pk__in=watched)
         .exclude(owner=request.user)
+        .filter(is_premium__in=(False, request.user.is_premium))
         .order_by("-id")
         .annotate(
             owner_name=F("owner__name"),
@@ -529,23 +532,26 @@ def get_videos(request):
             views=Count("watched"),
             comments_count=Count("comments"),
         )
-        .values(
-            "id",
-            "description",
-            "link",
-            "owner_name",
-            "owner_avatar",
-            "owner_preminum",
-            "is_followed",
-            "is_liked",
-            "likes",
-            "views",
-            "comments_count",
-            "is_premium",
-        )
     )
-    if not request.user.is_premium:
-        videos = videos.filter(is_premium=False)
+    videos = Paginator(videos, videoPerPage).page(page)
+    has_next = videos.has_next()
+    num_pages = videos.paginator.num_pages
+    total = videos.paginator.count
+    videos = videos.object_list.values(
+        "id",
+        "description",
+        "link",
+        "owner_id",
+        "owner_name",
+        "owner_avatar",
+        "owner_preminum",
+        "is_followed",
+        "is_liked",
+        "likes",
+        "views",
+        "comments_count",
+        "is_premium",
+    )
 
     result = []
     for video in videos:
@@ -553,8 +559,9 @@ def get_videos(request):
             {
                 "id": video["id"],
                 "description": video["description"],
-                "uri": video["link"],
+                "link": video["link"],
                 "owner": {
+                    "id": video["owner_id"],
                     "name": video["owner_name"],
                     "avatar": video["owner_avatar"],
                     "is_premium": video["owner_preminum"],
@@ -568,7 +575,18 @@ def get_videos(request):
             }
         )
 
-    return JsonResponse({"success": True, "videos": result}, status=200)
+    return JsonResponse(
+        {
+            "success": True,
+            "has_next": has_next,
+            "page": page,
+            "total": total,
+            "num_pages": num_pages,
+            "num_results": len(result),
+            "videos": result,
+        },
+        status=200,
+    )
 
 
 @auth_pass(["GET"])
@@ -678,7 +696,7 @@ def post_comment(request):
                 },
                 "comment": content,
                 "datetime": comment.created_at,
-            }
+            },
         }
     )
 
@@ -691,19 +709,18 @@ def get_comments(request):
     except Video.DoesNotExist:
         return JsonResponse({"success": False, "message": "Video not found"})
 
-    comments = (
-        video.comments.all()
-        .select_related("owner")
-        .order_by("-id")
-    )
-    comments = [{
-        "owner": {
-            "name": comment.owner.name,
-            "avatar": comment.owner.avatar or DEFAULT_AVATAR,
-        },
-        "comment": comment.content,
-        "datetime": comment.created_at,
-    } for comment in comments]
+    comments = video.comments.all().select_related("owner").order_by("-id")
+    comments = [
+        {
+            "owner": {
+                "name": comment.owner.name,
+                "avatar": comment.owner.avatar or DEFAULT_AVATAR,
+            },
+            "comment": comment.content,
+            "datetime": comment.created_at,
+        }
+        for comment in comments
+    ]
 
     return JsonResponse({"success": True, "comments": comments})
 
@@ -766,10 +783,12 @@ def get_messages(request, receiver_id):
 
 @auth_pass(["GET"])
 def get_ws_access_token(request):
-    return JsonResponse({
-        "success": True,
-        "token": generate_ws_access_token(request.user.pk),
-    })
+    return JsonResponse(
+        {
+            "success": True,
+            "token": generate_ws_access_token(request.user.pk),
+        }
+    )
 
 
 @auth_pass(["GET"])
@@ -787,3 +806,83 @@ def watch_video(request, video_id):
     Watched.objects.get_or_create(user=request.user, video=video)
 
     return JsonResponse({"success": True, "message": "OK"})
+
+
+@auth_pass(["GET"])
+def explore(request):
+    page = int(request.GET.get("page", 1))
+    videoPerPage = 30
+    videos = (
+        Video.objects.annotate(
+            owner_name=F("owner__name"),
+            owner_avatar=F("owner__avatar"),
+            owner_preminum=F("owner__is_premium"),
+            is_followed=Exists(request.user.following.filter(pk=OuterRef("owner_id"))),
+            is_liked=Exists(
+                Watched.objects.filter(
+                    user=request.user, video=OuterRef("pk"), liked=True
+                )
+            ),
+            likes=Count("watched", filter=Q(watched__liked=True)),
+            views=Count("watched"),
+            comments_count=Count("comments"),
+        )
+        .filter(is_premium__in=(False, request.user.is_premium))
+        .order_by("-views", "-likes", "-id")
+    )
+    videos = Paginator(videos, videoPerPage).page(page)
+    has_next = videos.has_next()
+    num_pages = videos.paginator.num_pages
+    total = videos.paginator.count
+    videos = videos.object_list.values(
+        "id",
+        "description",
+        "link",
+        "owner_id",
+        "owner_name",
+        "owner_avatar",
+        "owner_preminum",
+        "is_followed",
+        "is_liked",
+        "likes",
+        "thumbnail",
+        "views",
+        "comments_count",
+        "is_premium",
+    )
+
+    result = []
+    for video in videos:
+        result.append(
+            {
+                "id": video["id"],
+                "description": video["description"],
+                "link": video["link"],
+                "owner": {
+                    "id": video["owner_id"],
+                    "name": video["owner_name"],
+                    "avatar": video["owner_avatar"],
+                    "is_premium": video["owner_preminum"],
+                    "is_followed": video["is_followed"],
+                },
+                "thumbnail": video["thumbnail"],
+                "is_liked": video["is_liked"],
+                "likes": video["likes"],
+                "views": video["views"],
+                "comments": video["comments_count"],
+                "is_premium": video["is_premium"],
+            }
+        )
+
+    return JsonResponse(
+        {
+            "success": True,
+            "has_next": has_next,
+            "page": page,
+            "total": total,
+            "num_pages": num_pages,
+            "num_results": len(result),
+            "videos": result,
+        },
+        status=200,
+    )

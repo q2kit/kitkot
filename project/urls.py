@@ -33,18 +33,10 @@ from project.views import (
     get_ws_access_token,
     watch_video,
     like_toggle,
+    explore,
 )
 
-def video_example(request):
-    from django.shortcuts import redirect
-    return redirect('https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8')
-def video_example2(request):
-    from django.shortcuts import redirect
-    return redirect('https://drive.vnsvs.net/ssstik.io_1694951973186.mp4')
-
 urlpatterns = [
-    path('video_example', video_example),
-    path('video_example2', video_example2),
     path('admin/', admin.site.urls),
 
     path('api/register/', register),
@@ -60,8 +52,9 @@ urlpatterns = [
     path('api/<int:owner_id>/videos/', get_videos_by_owner),
     path('api/post-comment/', post_comment),
     path('api/comments', get_comments),
+    path('api/explore/', explore),
 
-    path('api/watch_video/<int:video_id>/', watch_video),
+    path('api/watch_video/<int:video_id>', watch_video),
     path('api/like-toggle/', like_toggle),
 
     path('api/send-message/', send_message),
