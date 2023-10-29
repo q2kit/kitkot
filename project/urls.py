@@ -34,6 +34,7 @@ from project.views import (
     watch_video,
     like_toggle,
     explore,
+    search,
 )
 
 urlpatterns = [
@@ -53,6 +54,7 @@ urlpatterns = [
     path('api/post-comment/', post_comment),
     path('api/comments', get_comments),
     path('api/explore/', explore),
+    path('api/search/', search),
 
     path('api/watch_video/<int:video_id>', watch_video),
     path('api/like-toggle/', like_toggle),

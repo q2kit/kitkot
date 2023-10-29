@@ -509,7 +509,7 @@ def post_video(request):
 @auth_pass(["GET"])
 def get_videos(request):
     page = int(request.GET.get("page", 1))
-    videoPerPage = 5
+    videoPerPage = 3
     watched = Watched.objects.filter(user=request.user).values_list(
         "video_id", flat=True
     )
@@ -541,6 +541,7 @@ def get_videos(request):
         "id",
         "description",
         "link",
+        "thumbnail",
         "owner_id",
         "owner_name",
         "owner_avatar",
@@ -560,6 +561,7 @@ def get_videos(request):
                 "id": video["id"],
                 "description": video["description"],
                 "link": video["link"],
+                "thumbnail": video["thumbnail"],
                 "owner": {
                     "id": video["owner_id"],
                     "name": video["owner_name"],
@@ -878,7 +880,6 @@ def explore(request):
         {
             "success": True,
             "has_next": has_next,
-            "page": page,
             "total": total,
             "num_pages": num_pages,
             "num_results": len(result),
@@ -886,3 +887,168 @@ def explore(request):
         },
         status=200,
     )
+
+
+@auth_pass(["GET"])
+def search(request):
+    try:
+        q = request.GET.get("q", "").strip()
+        page = int(request.GET.get("page", 1))
+        type = request.GET.get("type", "videos+users")
+        numPerPage = 15
+        if not q:
+            return JsonResponse({
+                "success": True,
+                "videos": {
+                    "has_next": False,
+                    "num_pages": 0,
+                    "num_results": 0,
+                    "total": 0,
+                    "videos": [],
+                },
+                "users": {
+                    "has_next": False,
+                    "num_pages": 0,
+                    "num_results": 0,
+                    "total": 0,
+                    "users": [],
+                }
+            })
+
+        if "videos" not in type:
+            videos = {
+                "has_next": False,
+                "num_pages": 0,
+                "num_results": 0,
+                "total": 0,
+                "videos": [],
+            }
+        else:
+            videos = (
+                Video.objects.exclude(owner=request.user)
+                .filter(Q(description__icontains=q))
+                .annotate(
+                    owner_name=F("owner__name"),
+                    owner_avatar=F("owner__avatar"),
+                    owner_preminum=F("owner__is_premium"),
+                    is_followed=Exists(
+                        request.user.following.filter(pk=OuterRef("owner_id"))
+                    ),
+                    is_liked=Exists(
+                        Watched.objects.filter(
+                            user=request.user, video=OuterRef("pk"), liked=True
+                        )
+                    ),
+                    likes=Count("watched", filter=Q(watched__liked=True)),
+                    views=Count("watched"),
+                    comments_count=Count("comments"),
+                )
+                .values(
+                    "id",
+                    "description",
+                    "link",
+                    "owner_id",
+                    "owner_name",
+                    "owner_avatar",
+                    "owner_preminum",
+                    "is_followed",
+                    "is_liked",
+                    "likes",
+                    "thumbnail",
+                    "views",
+                    "comments_count",
+                    "is_premium",
+                )
+            )
+            if videos:
+                videos = Paginator(videos, numPerPage).page(page)
+                has_next = videos.has_next()
+                num_pages = videos.paginator.num_pages
+                total = videos.paginator.count
+
+                videos = [
+                    {
+                        "id": video["id"],
+                        "description": video["description"],
+                        "link": video["link"],
+                        "owner": {
+                            "id": video["owner_id"],
+                            "name": video["owner_name"],
+                            "avatar": video["owner_avatar"],
+                            "is_premium": video["owner_preminum"],
+                            "is_followed": video["is_followed"],
+                        },
+                        "thumbnail": video["thumbnail"],
+                        "is_liked": video["is_liked"],
+                        "likes": video["likes"],
+                        "views": video["views"],
+                        "comments": video["comments_count"],
+                        "is_premium": video["is_premium"],
+                    }
+                    for video in videos
+                ]
+
+                videos = {
+                    "has_next": has_next,
+                    "num_pages": num_pages,
+                    "num_results": len(videos),
+                    "total": total,
+                    "videos": videos,
+                }
+            else:
+                videos = {
+                    "has_next": False,
+                    "num_pages": 0,
+                    "num_results": 0,
+                    "total": 0,
+                    "videos": [],
+                }
+
+        if "users" not in type:
+            users = {
+                "has_next": False,
+                "num_pages": 0,
+                "num_results": 0,
+                "total": 0,
+                "users": [],
+            }
+        else:
+            users = (
+                User.objects.filter(Q(username__icontains=q) | Q(name__icontains=q))
+                .annotate(
+                    is_followed=Exists(request.user.following.filter(pk=OuterRef("pk")))
+                )
+                .values(
+                    "id",
+                    "username",
+                    "name",
+                    "avatar",
+                    "is_premium",
+                    "is_followed",
+                )
+            )
+            if users:
+                users = Paginator(users, numPerPage).page(page)
+                has_next = users.has_next()
+                num_pages = users.paginator.num_pages
+                total = users.paginator.count
+
+                users = {
+                    "has_next": has_next,
+                    "num_pages": num_pages,
+                    "num_results": len(users),
+                    "total": total,
+                    "users": list(users),
+                }
+            else:
+                users = {
+                    "has_next": False,
+                    "num_pages": 0,
+                    "num_results": 0,
+                    "total": 0,
+                    "users": [],
+                }
+
+        return JsonResponse({"success": True, "videos": videos, "users": users})
+    except Exception as e:
+        raise e
