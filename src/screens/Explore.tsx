@@ -11,6 +11,7 @@ import { IconButton } from "react-native-paper";
 import { GET_EXPLORE_VIDEOS_URL } from "../config";
 import { useAppSelector } from "../redux/hooks";
 import GifLoadingBottom from "../components/GifLoadingBottom";
+import SearchResponse from "./SearchResponse";
 
 export default function Explore({ navigation }) {
   const user = useAppSelector(state => state.user);
@@ -20,7 +21,7 @@ export default function Explore({ navigation }) {
   const [videos, setVideos] = useState([]);
   const [page, setPage] = useState(1);
   const [isEnd, setIsEnd] = useState(false);
-  const [isLoading, setIsRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetch(GET_EXPLORE_VIDEOS_URL + `?page=${page}`, {
@@ -40,7 +41,7 @@ export default function Explore({ navigation }) {
     if (isEnd || isLoading) {
       return;
     }
-    setIsRefreshing(true);
+    setIsLoading(true);
     fetch(GET_EXPLORE_VIDEOS_URL + `?page=${page + 1}`, {
       method: "GET",
       headers: {
@@ -51,12 +52,13 @@ export default function Explore({ navigation }) {
         setVideos([...videos, ...json.videos]);
         setIsEnd(!json.has_next);
         setPage(page + 1);
-        setIsRefreshing(false);
+        setIsLoading(false);
       })
       .catch((error) => console.error(error))
   };
 
   const onSearch = () => {
+    navigation.navigate("SearchResponse", { searchText });
   };
 
   return (

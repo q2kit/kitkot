@@ -7,6 +7,7 @@ import Settings from './Settings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAppSelector } from '../redux/hooks';
 import ChatDetailModal from '../components/ChatDetailModal';
+import SearchResponse from './SearchResponse';
 
 const Stack = createNativeStackNavigator();
 
@@ -46,6 +47,11 @@ export default function Main() {
         <Stack.Screen
           name="ChatDetailModal"
           component={ChatDetailModal}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="SearchResponse"
+          component={SearchResponse}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
