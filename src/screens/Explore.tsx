@@ -20,7 +20,7 @@ export default function Explore({ navigation }) {
   const [videos, setVideos] = useState([]);
   const [page, setPage] = useState(1);
   const [isEnd, setIsEnd] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoading, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     fetch(GET_EXPLORE_VIDEOS_URL + `?page=${page}`, {
@@ -37,7 +37,7 @@ export default function Explore({ navigation }) {
   }, []);
 
   const getMoreVideos = () => {
-    if (isEnd || isRefreshing) {
+    if (isEnd || isLoading) {
       return;
     }
     setIsRefreshing(true);
@@ -94,14 +94,13 @@ export default function Explore({ navigation }) {
         ListFooterComponent={() => {
           return (
             <GifLoadingBottom
-              size={30}
-              style={{ marginBottom: 5 }}
-              visible={isRefreshing}
+              style={{ marginBottom: 1 }}
+              visible={isLoading}
             />
           )
         }}
         ListFooterComponentStyle={{
-          height: 40,
+          height: 10,
         }}
       />
       <VideoPlayerModal

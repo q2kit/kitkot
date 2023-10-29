@@ -1,12 +1,12 @@
 import React from 'react';
 import { Image, StyleSheet, View } from "react-native";
 
-export default function GifLoadingBottom({ visible, size, style }) {
+export default function GifLoadingBottom({ visible, style }) {
   return (
     <View style={[styles.loading, { display: visible ? 'flex' : 'none' }, style]}>
       <Image
-        source={require('../assets/loading.gif')}
-        style={{ width: size, height: size }}
+        source={require('../assets/loading-line.gif')}
+        style={{ width: 35, height: 8 }}
       />
     </View>
   );
