@@ -956,10 +956,16 @@ def search(request):
                 )
             )
             if videos:
-                videos = Paginator(videos, numPerPage).page(page)
-                has_next = videos.has_next()
-                num_pages = videos.paginator.num_pages
-                total = videos.paginator.count
+                try:
+                    videos = Paginator(videos, numPerPage).page(page)
+                    has_next = videos.has_next()
+                    num_pages = videos.paginator.num_pages
+                    total = videos.paginator.count
+                except Exception:
+                    videos = []
+                    has_next = False
+                    num_pages = 0
+                    total = 0
 
                 videos = [
                     {
@@ -1023,10 +1029,16 @@ def search(request):
                 )
             )
             if users:
-                users = Paginator(users, numPerPage).page(page)
-                has_next = users.has_next()
-                num_pages = users.paginator.num_pages
-                total = users.paginator.count
+                try:
+                    users = Paginator(users, numPerPage).page(page)
+                    has_next = users.has_next()
+                    num_pages = users.paginator.num_pages
+                    total = users.paginator.count
+                except Exception:
+                    users = []
+                    has_next = False
+                    num_pages = 0
+                    total = 0
 
                 users = {
                     "has_next": has_next,
