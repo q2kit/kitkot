@@ -9,6 +9,11 @@ interface UserState {
   following?: number;
   followers?: number;
   likes?: number;
+  messageNotification?: boolean;
+  likeNotification?: boolean;
+  commentNotification?: boolean;
+  showLikedVideos?: boolean;
+  showWatchedVideos?: boolean;
 }
 
 const initState: UserState = {

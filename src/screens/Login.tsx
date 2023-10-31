@@ -51,6 +51,11 @@ export default function Login({ navigation }) {
           following: response.data.user.following,
           likes: response.data.user.likes,
           id: response.data.user.uid,
+          messageNotification: response.data.user.message_notification,
+          likeNotification: response.data.user.like_notification,
+          commentNotification: response.data.user.comment_notification,
+          showLikedVideos: response.data.user.show_liked_videos,
+          showWatchedVideos: response.data.user.show_watched_videos,
         };
         dispatch(setUser(user));
         navigation.reset({
