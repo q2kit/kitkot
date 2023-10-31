@@ -11,6 +11,9 @@ class User(models.Model):
     avatar = models.CharField(max_length=255, null=True, blank=True)
     following = models.ManyToManyField("self", symmetrical=False, related_name="followers", blank=True)
     is_premium = models.BooleanField(default=False)
+    message_notification = models.BooleanField(default=False)
+    like_notification = models.BooleanField(default=False)
+    comment_notification = models.BooleanField(default=False)
     show_liked_videos = models.BooleanField(default=False)
     show_watched_videos = models.BooleanField(default=False)
 

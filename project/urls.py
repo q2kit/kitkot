@@ -35,6 +35,7 @@ from project.views import (
     like_toggle,
     explore,
     search,
+    save_settings,
 )
 
 urlpatterns = [
@@ -47,6 +48,7 @@ urlpatterns = [
     path('api/edit-profile/', edit_profile),
     path('api/profile/<int:uid>/', get_user_info),
     path('api/ws-access-token', get_ws_access_token),
+    path('api/save-settings/', save_settings),
 
     path('api/post-video/', post_video),
     path('api/videos/', get_videos),

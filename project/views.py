@@ -151,6 +151,11 @@ def login(request):
             "likes": Watched.objects.filter(video__owner=user, liked=True).count(),
             "is_premium": user.is_premium,
             "videos": user.videos.count(),
+            "show_liked_videos": user.show_liked_videos,
+            "show_watched_videos": user.show_watched_videos,
+            "message_notification": user.message_notification,
+            "like_notification": user.like_notification,
+            "comment_notification": user.comment_notification,
         }
 
         if (
@@ -1059,3 +1064,31 @@ def search(request):
         return JsonResponse({"success": True, "videos": videos, "users": users})
     except Exception as e:
         raise e
+
+
+@auth_pass(["POST"])
+def save_settings(request):
+    try:
+        message_notification = request.POST.get("message_notification") == "true"
+        like_notification = request.POST.get("like_notification") == "true"
+        comment_notification = request.POST.get("comment_notification") == "true"
+        show_liked_videos = request.POST.get("show_liked_videos") == "true"
+        show_watched_videos = request.POST.get("show_watched_videos") == "true"
+    except KeyError:
+        return JsonResponse(
+            {"success": False, "message": "Fill all fields"}, status=400
+        )
+
+    request.user.show_liked_videos = show_liked_videos
+    request.user.show_watched_videos = show_watched_videos
+    request.user.message_notification = message_notification
+    request.user.like_notification = like_notification
+    request.user.comment_notification = comment_notification
+    request.user.save()
+
+    return JsonResponse(
+        {
+            "success": True,
+            "message": "Settings saved",
+        }
+    )
