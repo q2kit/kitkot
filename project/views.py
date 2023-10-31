@@ -800,11 +800,6 @@ def watch_video(request, video_id):
     except Exception:
         return JsonResponse({"success": False, "message": "Video not found"})
 
-    if video.owner == request.user:
-        return JsonResponse(
-            {"success": False, "message": "You can't watch your own video"}
-        )
-
     Watched.objects.get_or_create(user=request.user, video=video)
 
     return JsonResponse({"success": True, "message": "OK"})
