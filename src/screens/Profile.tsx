@@ -16,12 +16,14 @@ import VideoThumbnail from "../components/VideoThumbnail";
 import VideoPlayerModal from "../components/VideoPlayerModal";
 import { GET_PROFILE_URL } from "../config";
 import { useIsFocused } from '@react-navigation/native';
+import GifLoadingBottom from "../components/GifLoadingBottom";
 
 export default function Profile({ navigation }) {
   const user = useAppSelector(state => state.user);
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [routes] = useState([
     { key: 'publicVideos' },
     { key: 'privateVideos' },
@@ -46,6 +48,7 @@ export default function Profile({ navigation }) {
       .then((response) => response.json())
       .then((json) => {
         setVideos(json.user.videos);
+        setIsLoading(false);
       })
       .catch((error) => {
         console.error(error);
@@ -79,6 +82,17 @@ export default function Profile({ navigation }) {
             }}
           />
         )}
+        ListFooterComponent={() => {
+          return (
+            <GifLoadingBottom
+              style={{ marginBottom: 1 }}
+              visible={isLoading}
+            />
+          )
+        }}
+        ListFooterComponentStyle={{
+          height: 10,
+        }}
       />
       <VideoPlayerModal
         visible={isModalVisible}

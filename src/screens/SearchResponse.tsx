@@ -31,7 +31,6 @@ export default function SearchResponse({ navigation, route }) {
     })
       .then((response) => response.json())
       .then((json) => {
-        console.log(json);
         setVideos(json.videos.videos);
         setUsers(json.users.users);
         setIsUsersEnd(!json.users.has_next);
@@ -249,7 +248,7 @@ export default function SearchResponse({ navigation, route }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>Search results</Text>
+        <Text style={styles.headerText}>{q}</Text>
         <IconButton
           icon={require('../assets/close.png')}
           size={25}
