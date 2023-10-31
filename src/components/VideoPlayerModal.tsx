@@ -14,7 +14,7 @@ import { convertToK, isLongDescription } from '../utils/Functions';
 import CommentModal from './CommentModal';
 import { useAppSelector } from '../redux/hooks';
 import axios from 'axios';
-import { LIKE_TOGGLE_URL } from '../config';
+import { LIKE_TOGGLE_URL, SET_WATCH_URL, joinPaths } from '../config';
 
 export default function VideoPlayerModal({ visible, video, onClose }) {
   if (!video) return null;
@@ -24,6 +24,11 @@ export default function VideoPlayerModal({ visible, video, onClose }) {
   const [likes, setLikes] = useState(video.likes);
   const [isMorePressed, setIsMorePressed] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
+  axios.get(joinPaths(SET_WATCH_URL, video.id), {
+    headers: {
+      'Authorization': `Bearer ${user.accessToken}`,
+    },
+  }).then(response => { }).catch(error => { });
   const likeToggle = () => {
     const fd = new FormData();
     fd.append('video_id', video.id);
