@@ -8,7 +8,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAppSelector } from '../redux/hooks';
 import ChatDetailModal from '../components/ChatDetailModal';
 import SearchResponse from './SearchResponse';
-import Payment from './Payment';
+import Premium from './Premium';
 import EditProfile from './EditProfile';
 
 const Stack = createNativeStackNavigator();
@@ -57,8 +57,8 @@ export default function Main() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="Payment"
-          component={Payment}
+          name="Premium"
+          component={Premium}
           options={{ headerShown: false }}
         />
         <Stack.Screen

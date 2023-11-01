@@ -78,9 +78,9 @@ export default function Settings({ navigation }) {
         onPress={() => { navigation.navigate('EditProfile') }}
       />
       <DetailSettingItem
-        title="Payment"
+        title="Premium"
         icon={require('../assets/right-chevron.png')}
-        onPress={() => { navigation.navigate('Payment') }}
+        onPress={() => { navigation.navigate('Premium') }}
       />
       <DetailSettingItem
         title="Logout"

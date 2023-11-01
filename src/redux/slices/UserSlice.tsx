@@ -6,6 +6,9 @@ interface UserState {
   id?: number;
   username?: string;
   email?: string;
+  balance?: number;
+  isPremium?: boolean;
+  premium_until?: string;
   avatar?: string;
   following?: number;
   followers?: number;

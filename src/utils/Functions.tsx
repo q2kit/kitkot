@@ -57,3 +57,45 @@ export function roundNumber(number) {
     return Math.ceil(number);
   }
 }
+
+export function datetimeDelta(from: string | null, to: string) {
+  if (from) {
+    var fromDatetime = new Date(from);
+  } else {
+    fromDatetime = new Date();
+  }
+  var toDatetime = new Date(to);
+  var delta = Math.abs(toDatetime.getTime() - fromDatetime.getTime()) / 1000;
+
+  var days = Math.floor(delta / 86400);
+  delta -= days * 86400;
+
+  var months = Math.floor(days / 30);
+  delta -= months * 30 * 86400;
+
+  var years = Math.floor(days / 365);
+
+  if (years > 100) {
+    return "Lifetime";
+  }
+
+  var hours = Math.floor(delta / 3600) % 24;
+  delta -= hours * 3600;
+  var minutes = Math.floor(delta / 60) % 60;
+  delta -= minutes * 60;
+  var seconds = Math.floor(delta % 60);
+
+  if (years > 0) {
+    return `${years} years`;
+  } else if (months > 0) {
+    return `${months} months`;
+  } else if (days > 0) {
+    return `${days} days`;
+  } else if (hours > 0) {
+    return `${hours} hours`;
+  } else if (minutes > 0) {
+    return `${minutes} minutes`;
+  } else {
+    return `${seconds} seconds`;
+  }
+}

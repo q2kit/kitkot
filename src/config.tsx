@@ -24,3 +24,4 @@ export const GET_EXPLORE_VIDEOS_URL = joinPaths(HOST_API, "explore/");
 export const SEARCH_URL = joinPaths(HOST_API, "search/");
 export const SETTINGS_URL = joinPaths(HOST_API, "save-settings/");
 export const EDIT_PROFILE_URL = joinPaths(HOST_API, "edit-profile/");
+export const GET_PREMIUM_PLANS = joinPaths(HOST_API, "premium-plans/");
