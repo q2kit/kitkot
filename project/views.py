@@ -230,7 +230,8 @@ def google_auth(request):
                 username = email.split("@")[0]
                 # name = idinfo["name"]
                 name = (
-                    idinfo.get("family_name", "") + " " + idinfo.get("given_name", "")
+                    idinfo.get("family_name", "") + " " +
+                    idinfo.get("given_name", "")
                 )
                 avatar = idinfo["picture"]
 
@@ -338,55 +339,52 @@ def edit_profile(request):
     if request.method == "POST":
         try:
             password = request.POST["password"]
-            name = request.POST.get("name", "").strip()
-            username = request.POST.get("username", "").strip()
-            email = request.POST.get("email", "").strip()
+            name = request.POST.get("name", "").strip() or request.user.name
+            username = request.POST.get("username", "").strip() or request.user.username
+            email = request.POST.get("email", "").strip() or request.user.email
             avatar = request.FILES.get("avatar", None)
-            new_password = request.POST.get("new_password", "").strip()
         except KeyError:
             return JsonResponse(
                 {"success": False, "message": "Enter your password"}, status=400
             )
 
         validator = [
-            validate_username(username) if username else (True, ""),
-            validate_email(email) if email else (True, ""),
-            validate_name(name) if name else (True, ""),
+            ("username", *validate_username(username)),
+            ("email", *validate_email(email)),
+            ("name", *validate_name(name)),
         ]
 
-        for success, message in validator:
+        for field, success, message in validator:
             if not success:
-                return JsonResponse({"success": False, "message": message}, status=400)
+                return JsonResponse({"success": False, field: message}, status=400)
 
         check_exists = [
             (
+                "username",
                 User.objects.filter(username=username)
                 .exclude(pk=request.user.pk)
                 .exists(),
                 "User with this username already exists",
             ),
             (
-                User.objects.filter(email=email).exclude(pk=request.user.pk).exists(),
+                "email",
+                User.objects.filter(email=email).exclude(
+                    pk=request.user.pk).exists(),
                 "User with this email already exists",
             ),
         ]
 
-        for exists, message in check_exists:
+        for field, exists, message in check_exists:
             if exists:
-                return JsonResponse({"success": False, "message": message}, status=400)
+                return JsonResponse({"success": False, field: message}, status=400)
 
         if (
             hashlib.sha512((password + SECRET_KEY).encode("utf-8")).hexdigest()
             != request.user.password
         ):
             return JsonResponse(
-                {"success": False, "message": "Wrong password"}, status=401
+                {"success": False, "password": "Wrong password"}, status=401
             )
-
-        if new_password:
-            request.user.password = hashlib.sha512(
-                (new_password + SECRET_KEY).encode("utf-8")
-            ).hexdigest()
 
         if name:
             request.user.name = name
@@ -397,9 +395,16 @@ def edit_profile(request):
         if avatar:
             request.user.avatar = upload_file_to_cloud(avatar)
         request.user.save()
-        return JsonResponse(
-            {"success": True, "message": "User info updated"}, status=200
-        )
+        return JsonResponse({
+            "success": True,
+            "message": "User info updated",
+            "user": {
+                "name": request.user.name,
+                "username": request.user.username,
+                "email": request.user.email,
+                "avatar": request.user.avatar,
+            },
+        }, status=200)
     elif request.method == "GET":
         return JsonResponse(
             {
@@ -452,7 +457,8 @@ def get_user_info(request, uid):
             ],
         }
     else:
-        result["is_following"] = request.user.following.filter(pk=user.pk).exists()
+        result["is_following"] = request.user.following.filter(
+            pk=user.pk).exists()
         videos = user.videos.filter(
             is_private=False, is_premium=request.user.is_premium
         )
@@ -527,7 +533,8 @@ def get_videos(request):
             owner_name=F("owner__name"),
             owner_avatar=F("owner__avatar"),
             owner_preminum=F("owner__is_premium"),
-            is_followed=Exists(request.user.following.filter(pk=OuterRef("owner_id"))),
+            is_followed=Exists(request.user.following.filter(
+                pk=OuterRef("owner_id"))),
             is_liked=Exists(
                 Watched.objects.filter(
                     user=request.user, video=OuterRef("pk"), liked=True
@@ -819,7 +826,8 @@ def explore(request):
             owner_name=F("owner__name"),
             owner_avatar=F("owner__avatar"),
             owner_preminum=F("owner__is_premium"),
-            is_followed=Exists(request.user.following.filter(pk=OuterRef("owner_id"))),
+            is_followed=Exists(request.user.following.filter(
+                pk=OuterRef("owner_id"))),
             is_liked=Exists(
                 Watched.objects.filter(
                     user=request.user, video=OuterRef("pk"), liked=True
@@ -1020,9 +1028,11 @@ def search(request):
             }
         else:
             users = (
-                User.objects.filter(Q(username__icontains=q) | Q(name__icontains=q))
+                User.objects.filter(Q(username__icontains=q)
+                                    | Q(name__icontains=q))
                 .annotate(
-                    is_followed=Exists(request.user.following.filter(pk=OuterRef("pk")))
+                    is_followed=Exists(
+                        request.user.following.filter(pk=OuterRef("pk")))
                 )
                 .values(
                     "id",
@@ -1069,9 +1079,11 @@ def search(request):
 @auth_pass(["POST"])
 def save_settings(request):
     try:
-        message_notification = request.POST.get("message_notification") == "true"
+        message_notification = request.POST.get(
+            "message_notification") == "true"
         like_notification = request.POST.get("like_notification") == "true"
-        comment_notification = request.POST.get("comment_notification") == "true"
+        comment_notification = request.POST.get(
+            "comment_notification") == "true"
         show_liked_videos = request.POST.get("show_liked_videos") == "true"
         show_watched_videos = request.POST.get("show_watched_videos") == "true"
     except KeyError:
