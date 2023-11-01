@@ -16,9 +16,21 @@ class User(models.Model):
     comment_notification = models.BooleanField(default=False)
     show_liked_videos = models.BooleanField(default=False)
     show_watched_videos = models.BooleanField(default=False)
+    premium_until = models.DateTimeField(null=True, blank=True)
+    balance = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name
+    
+
+class PremiumPlan(models.Model):
+    name = models.CharField(max_length=255)
+    price = models.IntegerField()
+    duration = models.IntegerField(verbose_name="Duration (days)")
+    description = models.CharField(max_length=1000, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.name} - ${self.price} - {self.duration} days"
     
 
 class Video(models.Model):

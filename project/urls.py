@@ -36,6 +36,8 @@ from project.views import (
     explore,
     search,
     save_settings,
+    get_premium_plans,
+    confirm_premium,
 )
 
 urlpatterns = [
@@ -63,4 +65,7 @@ urlpatterns = [
 
     path('api/send-message/', send_message),
     path('api/<int:receiver_id>/messages/', get_messages),
+
+    path('api/premium-plans/', get_premium_plans),
+    path('api/confirm-premium/', confirm_premium),
 ]

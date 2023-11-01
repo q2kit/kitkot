@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.db.models import Q, Exists, OuterRef, Count, F
 from django.core.cache import cache
 from django.core.paginator import Paginator
+from django.utils import timezone
 
 from .models import (
     User,
@@ -9,6 +10,7 @@ from .models import (
     Comment,
     Watched,
     Message,
+    PremiumPlan,
 )
 
 from .decorator import auth_pass
@@ -18,6 +20,7 @@ import os
 import threading
 from google.oauth2 import id_token
 from google.auth.transport import requests
+from datetime import timedelta
 
 from .func import (
     validate_email,
@@ -150,6 +153,8 @@ def login(request):
             "following": user.following.count(),
             "likes": Watched.objects.filter(video__owner=user, liked=True).count(),
             "is_premium": user.is_premium,
+            "balance": user.balance,
+            "premium_until": user.premium_until,
             "videos": user.videos.count(),
             "show_liked_videos": user.show_liked_videos,
             "show_watched_videos": user.show_watched_videos,
@@ -230,8 +235,7 @@ def google_auth(request):
                 username = email.split("@")[0]
                 # name = idinfo["name"]
                 name = (
-                    idinfo.get("family_name", "") + " " +
-                    idinfo.get("given_name", "")
+                    idinfo.get("family_name", "") + " " + idinfo.get("given_name", "")
                 )
                 avatar = idinfo["picture"]
 
@@ -368,8 +372,7 @@ def edit_profile(request):
             ),
             (
                 "email",
-                User.objects.filter(email=email).exclude(
-                    pk=request.user.pk).exists(),
+                User.objects.filter(email=email).exclude(pk=request.user.pk).exists(),
                 "User with this email already exists",
             ),
         ]
@@ -395,16 +398,19 @@ def edit_profile(request):
         if avatar:
             request.user.avatar = upload_file_to_cloud(avatar)
         request.user.save()
-        return JsonResponse({
-            "success": True,
-            "message": "User info updated",
-            "user": {
-                "name": request.user.name,
-                "username": request.user.username,
-                "email": request.user.email,
-                "avatar": request.user.avatar,
+        return JsonResponse(
+            {
+                "success": True,
+                "message": "User info updated",
+                "user": {
+                    "name": request.user.name,
+                    "username": request.user.username,
+                    "email": request.user.email,
+                    "avatar": request.user.avatar,
+                },
             },
-        }, status=200)
+            status=200,
+        )
     elif request.method == "GET":
         return JsonResponse(
             {
@@ -457,8 +463,7 @@ def get_user_info(request, uid):
             ],
         }
     else:
-        result["is_following"] = request.user.following.filter(
-            pk=user.pk).exists()
+        result["is_following"] = request.user.following.filter(pk=user.pk).exists()
         videos = user.videos.filter(
             is_private=False, is_premium=request.user.is_premium
         )
@@ -533,8 +538,7 @@ def get_videos(request):
             owner_name=F("owner__name"),
             owner_avatar=F("owner__avatar"),
             owner_preminum=F("owner__is_premium"),
-            is_followed=Exists(request.user.following.filter(
-                pk=OuterRef("owner_id"))),
+            is_followed=Exists(request.user.following.filter(pk=OuterRef("owner_id"))),
             is_liked=Exists(
                 Watched.objects.filter(
                     user=request.user, video=OuterRef("pk"), liked=True
@@ -826,8 +830,7 @@ def explore(request):
             owner_name=F("owner__name"),
             owner_avatar=F("owner__avatar"),
             owner_preminum=F("owner__is_premium"),
-            is_followed=Exists(request.user.following.filter(
-                pk=OuterRef("owner_id"))),
+            is_followed=Exists(request.user.following.filter(pk=OuterRef("owner_id"))),
             is_liked=Exists(
                 Watched.objects.filter(
                     user=request.user, video=OuterRef("pk"), liked=True
@@ -905,23 +908,25 @@ def search(request):
         type = request.GET.get("type", "videos+users")
         numPerPage = 15
         if not q:
-            return JsonResponse({
-                "success": True,
-                "videos": {
-                    "has_next": False,
-                    "num_pages": 0,
-                    "num_results": 0,
-                    "total": 0,
-                    "videos": [],
-                },
-                "users": {
-                    "has_next": False,
-                    "num_pages": 0,
-                    "num_results": 0,
-                    "total": 0,
-                    "users": [],
+            return JsonResponse(
+                {
+                    "success": True,
+                    "videos": {
+                        "has_next": False,
+                        "num_pages": 0,
+                        "num_results": 0,
+                        "total": 0,
+                        "videos": [],
+                    },
+                    "users": {
+                        "has_next": False,
+                        "num_pages": 0,
+                        "num_results": 0,
+                        "total": 0,
+                        "users": [],
+                    },
                 }
-            })
+            )
 
         if "videos" not in type:
             videos = {
@@ -1028,11 +1033,9 @@ def search(request):
             }
         else:
             users = (
-                User.objects.filter(Q(username__icontains=q)
-                                    | Q(name__icontains=q))
+                User.objects.filter(Q(username__icontains=q) | Q(name__icontains=q))
                 .annotate(
-                    is_followed=Exists(
-                        request.user.following.filter(pk=OuterRef("pk")))
+                    is_followed=Exists(request.user.following.filter(pk=OuterRef("pk")))
                 )
                 .values(
                     "id",
@@ -1079,11 +1082,9 @@ def search(request):
 @auth_pass(["POST"])
 def save_settings(request):
     try:
-        message_notification = request.POST.get(
-            "message_notification") == "true"
+        message_notification = request.POST.get("message_notification") == "true"
         like_notification = request.POST.get("like_notification") == "true"
-        comment_notification = request.POST.get(
-            "comment_notification") == "true"
+        comment_notification = request.POST.get("comment_notification") == "true"
         show_liked_videos = request.POST.get("show_liked_videos") == "true"
         show_watched_videos = request.POST.get("show_watched_videos") == "true"
     except KeyError:
@@ -1102,5 +1103,59 @@ def save_settings(request):
         {
             "success": True,
             "message": "Settings saved",
+        }
+    )
+
+
+@auth_pass(["GET"])
+def get_premium_plans(request):
+    return JsonResponse(
+        {
+            "success": True,
+            "plans": list(
+                PremiumPlan.objects.all().values(
+                    "id", "name", "price", "duration", "description"
+                )
+            ),
+        }
+    )
+
+
+@auth_pass(["POST"])
+def confirm_premium(request):
+    try:
+        plan_id = request.POST["plan_id"]
+        plan = PremiumPlan.objects.get(pk=plan_id)
+    except Exception:
+        return JsonResponse({"success": False, "message": "Invalid plan"})
+
+    if (
+        request.user.premium_until
+        and request.user.premium_until > timezone.now() + timedelta(days=9999)
+    ):
+        return JsonResponse(
+            {"success": False, "message": "You already in lifetime premium"}, status=200
+        )
+
+    if request.user.balance < plan.price:
+        return JsonResponse(
+            {"success": False, "message": "Not enough money"}, status=400
+        )
+
+    request.user.is_premium = True
+    request.user.balance -= plan.price
+    request.user.premium_until = (
+        request.user.premium_until or timezone.now()
+    ) + timedelta(days=plan.duration)
+    request.user.save()
+
+    return JsonResponse(
+        {
+            "success": True,
+            "message": "Premium confirmed",
+            "user": {
+                "balance": request.user.balance,
+                "premium_until": request.user.premium_until,
+            },
         }
     )
