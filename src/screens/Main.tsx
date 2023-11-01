@@ -9,6 +9,7 @@ import { useAppSelector } from '../redux/hooks';
 import ChatDetailModal from '../components/ChatDetailModal';
 import SearchResponse from './SearchResponse';
 import Payment from './Payment';
+import EditProfile from './EditProfile';
 
 const Stack = createNativeStackNavigator();
 
@@ -58,6 +59,11 @@ export default function Main() {
         <Stack.Screen
           name="Payment"
           component={Payment}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="EditProfile"
+          component={EditProfile}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

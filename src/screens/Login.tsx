@@ -46,6 +46,7 @@ export default function Login({ navigation }) {
           accessToken: response.data.token,
           name: response.data.user.name,
           username: response.data.user.username,
+          email: response.data.user.email,
           avatar: response.data.user.avatar,
           followers: response.data.user.followers,
           following: response.data.user.following,

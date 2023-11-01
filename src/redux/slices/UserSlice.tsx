@@ -5,6 +5,7 @@ interface UserState {
   name?: string;
   id?: number;
   username?: string;
+  email?: string;
   avatar?: string;
   following?: number;
   followers?: number;

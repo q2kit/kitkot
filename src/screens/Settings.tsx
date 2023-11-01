@@ -75,7 +75,7 @@ export default function Settings({ navigation }) {
       <DetailSettingItem
         title="Edit Profile"
         icon={require('../assets/edit-profile.png')}
-        onPress={() => { }}
+        onPress={() => { navigation.navigate('EditProfile') }}
       />
       <DetailSettingItem
         title="Payment"

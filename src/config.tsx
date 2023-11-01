@@ -23,3 +23,4 @@ export const POST_COMMENT_URL = joinPaths(HOST_API, "post-comment/");
 export const GET_EXPLORE_VIDEOS_URL = joinPaths(HOST_API, "explore/");
 export const SEARCH_URL = joinPaths(HOST_API, "search/");
 export const SETTINGS_URL = joinPaths(HOST_API, "save-settings/");
+export const EDIT_PROFILE_URL = joinPaths(HOST_API, "edit-profile/");
