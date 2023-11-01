@@ -5,9 +5,11 @@ import {
   Image,
   Text,
   Pressable,
+  ToastAndroid,
 } from "react-native";
-import { GET_PREMIUM_PLANS } from "../config";
-import { useAppSelector } from "../redux/hooks";
+import { GET_PREMIUM_PLANS, CONFIRM_PREMIUM } from "../config";
+import { setUser } from '../redux/slices/UserSlice';
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { datetimeDelta } from "../utils/Functions";
 
 const PlanMatrix = ({ plans, style = {}, onPlanPress }) => {
@@ -27,13 +29,13 @@ const PlanMatrix = ({ plans, style = {}, onPlanPress }) => {
     },
     cell: {
       width: 160,
-      borderWidth: 1,
-      backgroundColor: "#6963f6",
+      backgroundColor: "#69edff",
       padding: 10,
       margin: 5,
-      borderColor: "#000",
       flexDirection: "row",
       borderRadius: 5,
+      borderColor: "#000",
+      borderWidth: 2,
     },
   });
   const cols = 2;
@@ -50,9 +52,9 @@ const PlanMatrix = ({ plans, style = {}, onPlanPress }) => {
         <View
           key={plan.id}
           style={[styles.cell, planChosen?.id === plan.id ? {
-            backgroundColor: "#e7455f",
-            borderColor: "lightgreen",
-            borderWidth: 1,
+            backgroundColor: "#36b3c6",
+            borderColor: "#fff",
+            borderWidth: 2,
           } : null]}
         >
           <Pressable
@@ -62,7 +64,7 @@ const PlanMatrix = ({ plans, style = {}, onPlanPress }) => {
             }}
             style={{ flex: 1 }}
           >
-            <Text style={{ color: "#fff" }}>
+            <Text style={{ color: "#000" }}>
               {plan?.name} - ${plan?.price}
             </Text>
           </Pressable>
@@ -85,8 +87,10 @@ const PlanMatrix = ({ plans, style = {}, onPlanPress }) => {
 
 export default function Premium({ navigation }) {
   const user = useAppSelector(state => state.user);
+  const dispatch = useAppDispatch();
   const [plans, setPlans] = React.useState([]);
   const [planChosen, setPlanChosen] = React.useState(null);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   useEffect(() => {
     fetch(GET_PREMIUM_PLANS, {
@@ -102,7 +106,34 @@ export default function Premium({ navigation }) {
       .catch((error) => console.error(error))
   }, []);
 
-  return (
+  const onPressConfirm = () => {
+    if (planChosen) {
+      setIsLoading(true);
+      const fd = new FormData();
+      fd.append("plan_id", planChosen.id);
+      fetch(CONFIRM_PREMIUM, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${user.accessToken}`,
+        },
+        body: fd,
+      }).then((response) => response.json())
+        .then((json) => {
+          setIsLoading(false);
+          if (json.success) {
+            ToastAndroid.show(json.message, ToastAndroid.SHORT);
+            dispatch(setUser(json.user));
+          } else {
+            ToastAndroid.show(json.message, ToastAndroid.SHORT);
+          }
+        })
+        .catch((error) => console.error(error))
+    } else {
+      ToastAndroid.show("Please choose a plan", ToastAndroid.SHORT);
+    }
+  };
+
+  return plans && (
     <View style={styles.container}>
       <View style={styles.avatarContainer}>
         <Image
@@ -156,14 +187,19 @@ export default function Premium({ navigation }) {
           <PlanMatrix plans={plans} onPlanPress={(plan) => setPlanChosen(plan)} />
         </View>
       </View>
-      <View style={styles.checkoutContainer}>
-        <View style={styles.checkout}>
-          <Text style={styles.checkoutText}>
-            Checkout
-          </Text>
-        </View>
-
-      </View>
+      <Pressable
+        style={[styles.confirmContainer, { opacity: planChosen ? 1 : 0 }]}
+        onPress={onPressConfirm}
+        disabled={isLoading}
+      >
+        <Text style={styles.confirmText}>
+          Confirm
+        </Text>
+        <Image
+          source={require("../assets/loading-line.gif")}
+          style={[styles.loadingImage, { opacity: isLoading ? 1 : 0 }]}
+        />
+      </Pressable>
     </View>
   );
 }
@@ -265,24 +301,28 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 10,
   },
-  checkoutContainer: {
+  confirmContainer: {
     marginTop: 30,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+    flexDirection: "column",
   },
-  checkout: {
+  confirmText: {
+    color: "#fff",
+    textAlign: "center",
+    fontSize: 17,
     width: 150,
-    backgroundColor: "#36b3c6",
+    backgroundColor: "#2bba51",
     padding: 10,
     borderRadius: 5,
     marginTop: 40,
     flexDirection: "row",
     justifyContent: "center",
   },
-  checkoutText: {
-    color: "#fff",
-    textAlign: "center",
-    fontSize: 17,
+  loadingImage: {
+    width: 40,
+    height: 10,
+    marginTop: 10,
   },
 });
