@@ -114,7 +114,7 @@ export default function Profile({ navigation }) {
     const tabBarStyles = StyleSheet.create({
       tabContainer: {
         height: 40,
-        backgroundColor: '#000',
+        backgroundColor: "#121212",
         width: '90%',
         marginLeft: '5%',
         shadowOffset: { height: 0, width: 0 },
@@ -142,7 +142,7 @@ export default function Profile({ navigation }) {
       }
     });
     return (
-      <View style={{ backgroundColor: '#000' }}>
+      <View style={{ backgroundColor: "#121212" }}>
         <TabBar
           {...props}
           indicatorStyle={tabBarStyles.indicator}
@@ -258,10 +258,10 @@ const styles = StyleSheet.create({
   container: {
     display: 'flex',
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: "#121212",
     width: '100%',
     flexDirection: 'column',
-    color: '#000',
+    color: "#000",
     alignItems: 'center',
   },
   settings: {
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     left: 0,
     width: '100%',
     height: '100%',
-    backgroundColor: '#000',
+    backgroundColor: "#121212",
     opacity: 0.8,
     alignItems: 'center',
     justifyContent: 'center',

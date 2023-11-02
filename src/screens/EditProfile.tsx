@@ -183,7 +183,7 @@ export default function Profile({ navigation }) {
 
 const styles = StyleSheet.create({
   background: {
-    backgroundColor: '#000',
+    backgroundColor: "#121212",
     width: '100%',
     height: '100%',
   },
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     flexDirection: 'column',
-    color: '#000',
+    color: "#000",
   },
   avatar: {
     marginTop: 50,
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   saveButtonText: {
-    color: '#000',
+    color: "#000",
     fontWeight: 'bold',
     textAlign: 'center',
   },

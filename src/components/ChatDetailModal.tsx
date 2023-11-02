@@ -258,7 +258,7 @@ export default function ChatDetailModal() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: "#121212",
   },
   inputContainer: {
     flexDirection: 'row',
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: "#121212",
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 5,

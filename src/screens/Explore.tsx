@@ -116,7 +116,7 @@ export default function Explore({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#000",
+    backgroundColor: "#121212",
     width: "100%",
     height: "100%",
   },
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 50,
     marginTop: 100,/////
-    backgroundColor: "#000",
+    backgroundColor: "#121212",
     justifyContent: "center",
     alignItems: "center",
   },

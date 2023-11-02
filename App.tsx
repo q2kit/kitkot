@@ -22,7 +22,7 @@ function App() {
           <SafeAreaView style={{ flex: 1 }}>
             <StatusBar
               barStyle="light-content"
-              backgroundColor="#000"
+              backgroundColor="#121212"
             />
             <Main />
             <Toast />
