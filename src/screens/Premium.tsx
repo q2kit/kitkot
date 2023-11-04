@@ -11,6 +11,7 @@ import { GET_PREMIUM_PLANS, CONFIRM_PREMIUM } from "../config";
 import { setUser } from '../redux/slices/UserSlice';
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { datetimeDelta } from "../utils/Functions";
+import TopUpModal from "../components/TopUpModal";
 
 const PlanMatrix = ({ plans, style = {}, onPlanPress }) => {
   const styles = StyleSheet.create({
@@ -91,6 +92,7 @@ export default function Premium({ navigation }) {
   const [plans, setPlans] = React.useState([]);
   const [planChosen, setPlanChosen] = React.useState(null);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [topUpModalVisible, setTopUpModalVisible] = React.useState(false);
 
   useEffect(() => {
     fetch(GET_PREMIUM_PLANS, {
@@ -159,7 +161,10 @@ export default function Premium({ navigation }) {
           </Text>
         </View>
         <View style={styles.balanceButtons}>
-          <View style={[styles.balanceButton, { backgroundColor: "#6963f6" }]}>
+          <Pressable
+            style={[styles.balanceButton, { backgroundColor: "#6963f6" }]}
+            onPress={() => setTopUpModalVisible(true)}
+          >
             <Image
               source={require("../assets/top-up.png")}
               style={styles.topUpImage}
@@ -167,7 +172,7 @@ export default function Premium({ navigation }) {
             <Text style={styles.balanceButtonText}>
               Top up
             </Text>
-          </View>
+          </Pressable>
           <View style={[styles.balanceButton, { backgroundColor: "#e7455f" }]}>
             <Image
               source={require("../assets/withdraw.png")}
@@ -188,7 +193,7 @@ export default function Premium({ navigation }) {
         </View>
       </View>
       <Pressable
-        style={[styles.confirmContainer, { opacity: planChosen ? 1 : 0 }]}
+        style={[styles.confirmContainer, { opacity: planChosen ? 1 : 1 }]}
         onPress={onPressConfirm}
         disabled={isLoading}
       >
@@ -200,6 +205,10 @@ export default function Premium({ navigation }) {
           style={[styles.loadingImage, { opacity: isLoading ? 1 : 0 }]}
         />
       </Pressable>
+      <TopUpModal
+        visible={topUpModalVisible}
+        onClose={() => setTopUpModalVisible(false)}
+      />
     </View>
   );
 }

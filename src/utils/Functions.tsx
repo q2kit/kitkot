@@ -99,3 +99,18 @@ export function datetimeDelta(from: string | null, to: string) {
     return `${seconds} seconds`;
   }
 }
+
+
+export function cardNumberFormatter(number: string) {
+  // remove all non digit characters
+  number = number.replace(/\D/g, '');
+  // split number into groups of 4 digits
+  let formattedNumber = '';
+  for (let i = 0; i < number.length; i++) {
+    if (i % 4 === 0 && i !== 0) {
+      formattedNumber += '-';
+    }
+    formattedNumber += number[i];
+  }
+  return formattedNumber;
+}
