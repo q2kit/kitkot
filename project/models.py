@@ -9,7 +9,9 @@ class User(models.Model):
     name = models.CharField(max_length=255)
     email = models.EmailField(max_length=255)
     avatar = models.CharField(max_length=255, null=True, blank=True)
-    following = models.ManyToManyField("self", symmetrical=False, related_name="followers", blank=True)
+    following = models.ManyToManyField(
+        "self", symmetrical=False, related_name="followers", blank=True
+    )
     is_premium = models.BooleanField(default=False)
     message_notification = models.BooleanField(default=False)
     like_notification = models.BooleanField(default=False)
@@ -21,7 +23,7 @@ class User(models.Model):
 
     def __str__(self):
         return self.name
-    
+
 
 class PremiumPlan(models.Model):
     name = models.CharField(max_length=255)
@@ -31,7 +33,17 @@ class PremiumPlan(models.Model):
 
     def __str__(self):
         return f"{self.name} - ${self.price} - {self.duration} days"
-    
+
+
+class BalanceLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    amount = models.IntegerField()
+    description = models.CharField(max_length=1000)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.name} - ${self.amount} - {self.description} - {self.created_at}"
+
 
 class Video(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="videos")
@@ -44,15 +56,15 @@ class Video(models.Model):
 
     def __str__(self):
         return str(self.id) + " - " + self.description + "(" + self.owner.name + ")"
-    
+
     @property
     def likes_count(self):
         return self.watched_set.filter(liked=True).count()
-    
+
     @property
     def comments_count(self):
         return self.comments.count()
-    
+
     @property
     def views_count(self):
         return self.watched_set.count()
@@ -77,6 +89,7 @@ class Video(models.Model):
             "views": self.views_count,
         }
 
+
 class Comment(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     video = models.ForeignKey(Video, on_delete=models.CASCADE, related_name="comments")
@@ -85,7 +98,7 @@ class Comment(models.Model):
 
     def __str__(self):
         return str(self.id) + " - " + self.owner.name
-    
+
 
 class Watched(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -97,8 +110,12 @@ class Watched(models.Model):
 
 
 class Message(models.Model):
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_messages")
+    sender = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="sent_messages"
+    )
+    receiver = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="received_messages"
+    )
     content = models.CharField(max_length=1000)
     created_at = models.DateTimeField(auto_now_add=True)
 

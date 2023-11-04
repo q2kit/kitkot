@@ -11,6 +11,7 @@ from .models import (
     Watched,
     Message,
     PremiumPlan,
+    BalanceLog,
 )
 
 from .decorator import auth_pass
@@ -21,6 +22,7 @@ import threading
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from datetime import timedelta
+import re
 
 from .func import (
     validate_email,
@@ -33,6 +35,7 @@ from .func import (
     upload_video_to_s3,
     upload_file_to_cloud,
     upload_file_to_local,
+    user_top_up,
 )
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
@@ -1142,6 +1145,12 @@ def confirm_premium(request):
             {"success": False, "message": "Not enough money"}, status=400
         )
 
+    BalanceLog.objects.create(
+        user=request.user,
+        amount=-plan.price,
+        description="Buy premium plan " + plan.name,
+    )
+
     request.user.is_premium = True
     request.user.balance -= plan.price
     request.user.premium_until = (
@@ -1156,6 +1165,49 @@ def confirm_premium(request):
             "user": {
                 "balance": request.user.balance,
                 "premium_until": request.user.premium_until,
+            },
+        }
+    )
+
+
+@auth_pass(["POST"])
+def top_up(request):
+    try:
+        amount = int(request.POST["amount"])
+        number = request.POST["number"]
+        name = request.POST["name"]
+        security_code = request.POST["security_code"]
+        expiry = request.POST["expiry"]
+    except Exception:
+        return JsonResponse({"success": False, "message": "Invalid amount"})
+
+    card = {
+        "number": re.sub(r"\D", "", number),
+        "name": name,
+        "security_code": security_code,
+        "expiry": expiry,
+    }
+
+    try:
+        user_top_up(amount=amount, card=card)
+    except Exception as e:
+        return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+    BalanceLog.objects.create(
+        user=request.user,
+        amount=amount,
+        description="Top up",
+    )
+
+    request.user.balance += amount
+    request.user.save()
+
+    return JsonResponse(
+        {
+            "success": True,
+            "message": "Top up success",
+            "user": {
+                "balance": request.user.balance,
             },
         }
     )

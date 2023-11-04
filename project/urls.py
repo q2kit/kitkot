@@ -38,6 +38,7 @@ from project.views import (
     save_settings,
     get_premium_plans,
     confirm_premium,
+    top_up,
 )
 
 urlpatterns = [
@@ -68,4 +69,5 @@ urlpatterns = [
 
     path('api/premium-plans/', get_premium_plans),
     path('api/confirm-premium/', confirm_premium),
+    path('api/top-up/', top_up),
 ]

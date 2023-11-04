@@ -14,6 +14,7 @@ import datetime
 import boto3
 from uuid import uuid4
 import ffmpeg
+import traceback
 
 
 def validate_email(email):
@@ -170,3 +171,83 @@ def create_thumbnail(filepath):
         os.path.join("/var/www/kitkot.q2k.dev/thumbnails", thumbnail), vframes=1
     ).run()
     return thumbnail
+
+
+def user_top_up(amount, card):
+    try:
+        # get access token
+        get_access_token_response = requests.post(
+            os.getenv("PAYPAL_AUTH_URL"),
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            auth=(
+                os.getenv("PAYPAL_CLIENT_ID"),
+                os.getenv("PAYPAL_CLIENT_SECRET"),
+            ),
+            data="grant_type=client_credentials",
+        )
+        access_token = get_access_token_response.json()["access_token"]
+    except Exception as e:
+        raise Exception("Cannot get access token")
+    
+    try:
+        # create order
+        create_order_response = requests.post(
+            os.getenv("PAYPAL_CREATE_ORDER_URL"),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {access_token}",
+            },
+            json={
+                "intent": "CAPTURE",
+                "purchase_units": [
+                    {
+                        "amount": {
+                            "currency_code": "USD",
+                            "value": amount,
+                        },
+                    }
+                ],
+            },
+        )
+        order_id = create_order_response.json()["id"]
+    except Exception as e:
+        raise Exception("Cannot create order, please contact the administrator!")
+    
+    try:
+        # confirm payment source
+        confirm_payment_source_response = requests.post(
+            os.getenv("PAYPAL_CONFIRM_PAYMENT_SOURCE_URL") % (order_id),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {access_token}",
+            },
+            json={
+                "payment_source": {
+                    "card": {
+                        "number": card["number"],
+                        "name": card["name"],
+                        "expiry": card["expiry"],
+                        "security_code": card["security_code"],
+                    }
+                }
+            },
+        )
+        status = confirm_payment_source_response.json()["status"]
+    except Exception as e:
+        raise Exception("Card's information is invalid, please check again!")
+    
+
+    # if status == "APPROVED":
+    #     # capture order
+    #     capture_order_response = requests.post(
+    #         os.getenv("PAYPAL_CAPTURE_ORDER_URL") % (order_id),
+    #         headers={
+    #             "Content-Type": "application/json",
+    #             "Authorization": f"Bearer {access_token}",
+    #         },
+    #     )
+    #     return capture_order_response.json()["status"] == "COMPLETED"
+    # else:
+    #     ...
