@@ -26,4 +26,5 @@ export const SETTINGS_URL = joinPaths(HOST_API, "save-settings/");
 export const EDIT_PROFILE_URL = joinPaths(HOST_API, "edit-profile/");
 export const GET_PREMIUM_PLANS = joinPaths(HOST_API, "premium-plans/");
 export const CONFIRM_PREMIUM = joinPaths(HOST_API, "confirm-premium/");
-export const TopUp_URL = joinPaths(HOST_API, "top-up/");
+export const TOPUP_URL = joinPaths(HOST_API, "top-up/");
+export const WITHDRAW_URL = joinPaths(HOST_API, "withdraw/");

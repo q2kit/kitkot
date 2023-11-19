@@ -1,55 +1,33 @@
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, TextInput, ToastAndroid, View } from "react-native";
-import { cardNumberFormatter } from "../utils/Functions";
-import { TOPUP_URL } from "../config";
+import { WITHDRAW_URL } from "../config";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { setUser } from "../redux/slices/UserSlice";
 
-export default function TopUpModal({ visible, onClose }) {
+export default function WithdrawModal({ visible, onClose }) {
   const user = useAppSelector(state => state.user);
   const dispatch = useAppDispatch();
   const [amount, setAmount] = React.useState("");
-  const [cardNumber, setCardNumber] = React.useState("");
-  const [nameOnCard, setNameOnCard] = React.useState("");
-  const [expiryDate, setExpiryDate] = React.useState("");
-  const [cvv, setCvv] = React.useState("");
+  const [email, setEmail] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [amountError, setAmountError] = React.useState(false);
-  const [cardNumberError, setCardNumberError] = React.useState(false);
-  const [nameOnCardError, setNameOnCardError] = React.useState(false);
-  const [expiryDateError, setExpiryDateError] = React.useState(false);
-  const [cvvError, setCvvError] = React.useState(false);
+  const [emailError, setEmailError] = React.useState(false);
 
   const onConfirm = () => {
     if (amount === "") {
       setAmountError(true);
       ToastAndroid.show("Please enter amount", ToastAndroid.SHORT);
       return;
-    } else if (cardNumber === "") {
-      setCardNumberError(true);
-      ToastAndroid.show("Please enter card number", ToastAndroid.SHORT);
-      return;
-    } else if (nameOnCard === "") {
-      setNameOnCardError(true);
-      ToastAndroid.show("Please enter name on card", ToastAndroid.SHORT);
-      return;
-    } else if (expiryDate === "") {
-      setExpiryDateError(true);
-      ToastAndroid.show("Please enter expiry date", ToastAndroid.SHORT);
-      return;
-    } else if (cvv === "") {
-      setCvvError(true);
-      ToastAndroid.show("Please enter CVV", ToastAndroid.SHORT);
+    } else if (email === "") {
+      setEmailError(true);
+      ToastAndroid.show("Please enter email", ToastAndroid.SHORT);
       return;
     }
     setLoading(true);
     const fd = new FormData();
     fd.append("amount", amount);
-    fd.append("number", cardNumber);
-    fd.append("name", nameOnCard);
-    fd.append("expiry", expiryDate);
-    fd.append("security_code", cvv);
-    fetch(TOPUP_URL, {
+    fd.append("email", email);
+    fetch(WITHDRAW_URL, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${user.accessToken}`,
@@ -57,6 +35,8 @@ export default function TopUpModal({ visible, onClose }) {
       body: fd,
     }).then((response) => response.json())
       .then((json) => {
+        console.log(json);
+        
         setLoading(false);
         if (json.success) {
           ToastAndroid.show(json.message, ToastAndroid.SHORT);
@@ -80,7 +60,7 @@ export default function TopUpModal({ visible, onClose }) {
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.headerText}>
-            Top up
+            Withdraw
           </Text>
         </View>
         <View style={styles.fields}>
@@ -101,64 +81,18 @@ export default function TopUpModal({ visible, onClose }) {
           </View>
           <View style={styles.field}>
             <Text style={styles.label}>
-              Card number
+              Paypal Email
             </Text>
             <TextInput
-              style={[styles.input, { borderColor: cardNumberError ? "#e7455f" : "#fff" }]}
+              style={[styles.input, { borderColor: emailError ? "#e7455f" : "#fff" }]}
               onChangeText={(text) => {
-                setCardNumberError(false);
-                setCardNumber(cardNumberFormatter(text));
+                setEmailError(false);
+                setEmail(text);
               }}
-              value={cardNumber}
-              keyboardType="numeric"
-              placeholder="XXXX XXXX XXXX XXXX"
-              returnKeyType="next"
-              maxLength={19}
-            />
-          </View>
-          <View style={styles.field}>
-            <Text style={styles.label}>
-              Name on card
-            </Text>
-            <TextInput
-              style={[styles.input, { borderColor: nameOnCardError ? "#e7455f" : "#fff" }]}
-              onChangeText={(text) => {
-                setNameOnCardError(false);
-                setNameOnCard(text);
-              }}
-              placeholder="JOHN DOE"
-              returnKeyType="next"
-              autoCapitalize="characters"
-            />
-          </View>
-          <View style={styles.field}>
-            <Text style={styles.label}>
-              Expiry date
-            </Text>
-            <TextInput
-              style={[styles.input, { borderColor: expiryDateError ? "#e7455f" : "#fff" }]}
-              onChangeText={(text) => {
-                setExpiryDateError(false);
-                setExpiryDate(text);
-              }}
-              keyboardType="default"
-              placeholder="YYYY-MM"
-              returnKeyType="next"
-            />
-          </View>
-          <View style={styles.field}>
-            <Text style={styles.label}>
-              CVV
-            </Text>
-            <TextInput
-              style={[styles.input, { borderColor: cvvError ? "#e7455f" : "#fff" }]}
-              onChangeText={(text) => {
-                setCvvError(false);
-                setCvv(text);
-              }}
-              secureTextEntry={true}
-              keyboardType="numeric"
-              placeholder="XXX"
+              value={email}
+              keyboardType="email-address"
+              placeholder="kitkot@example.com"
+              autoCapitalize="none"
               returnKeyType="done"
             />
           </View>

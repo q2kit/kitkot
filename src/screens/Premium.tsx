@@ -12,6 +12,7 @@ import { setUser } from '../redux/slices/UserSlice';
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { datetimeDelta } from "../utils/Functions";
 import TopUpModal from "../components/TopUpModal";
+import WithdrawModal from "../components/WithdrawModal";
 
 const PlanMatrix = ({ plans, style = {}, onPlanPress }) => {
   const styles = StyleSheet.create({
@@ -93,6 +94,7 @@ export default function Premium({ navigation }) {
   const [planChosen, setPlanChosen] = React.useState(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [topUpModalVisible, setTopUpModalVisible] = React.useState(false);
+  const [withdrawModalVisible, setWithdrawModalVisible] = React.useState(false);
 
   useEffect(() => {
     fetch(GET_PREMIUM_PLANS, {
@@ -173,7 +175,10 @@ export default function Premium({ navigation }) {
               Top up
             </Text>
           </Pressable>
-          <View style={[styles.balanceButton, { backgroundColor: "#e7455f" }]}>
+          <Pressable
+            style={[styles.balanceButton, { backgroundColor: "#e7455f" }]}
+            onPress={() => setWithdrawModalVisible(true)}
+          >
             <Image
               source={require("../assets/withdraw.png")}
               style={styles.withdrawImage}
@@ -181,7 +186,7 @@ export default function Premium({ navigation }) {
             <Text style={styles.balanceButtonText}>
               Withdraw
             </Text>
-          </View>
+          </Pressable>
         </View>
       </View>
       <View style={styles.plansContainer}>
@@ -208,6 +213,10 @@ export default function Premium({ navigation }) {
       <TopUpModal
         visible={topUpModalVisible}
         onClose={() => setTopUpModalVisible(false)}
+      />
+      <WithdrawModal
+        visible={withdrawModalVisible}
+        onClose={() => setWithdrawModalVisible(false)}
       />
     </View>
   );
