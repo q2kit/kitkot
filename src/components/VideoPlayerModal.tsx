@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#000',
+    backgroundColor: "#121212",
   },
   video: {
     flex: 1,
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 10,
     position: 'absolute',
-    textShadowColor: '#000',
+    textShadowColor: "#000",
     top: 478,
     right: 20,
     fontWeight: 'bold',
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: 'bold',
     position: 'absolute',
-    textShadowColor: '#000',
+    textShadowColor: "#000",
     top: 548,
     right: 20,
     textAlign: 'center',

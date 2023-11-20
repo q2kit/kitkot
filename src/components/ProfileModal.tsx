@@ -188,10 +188,10 @@ const styles = StyleSheet.create({
   container: {
     display: 'flex',
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: "#121212",
     width: '100%',
     flexDirection: 'column',
-    color: '#000',
+    color: "#000",
     alignItems: 'center',
   },
   backBtn: {

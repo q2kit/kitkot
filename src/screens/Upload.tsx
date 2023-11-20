@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#000',
+    backgroundColor: "#121212",
   },
   video: {
     flex: 1,
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     height: '60%',
-    backgroundColor: '#000',
+    backgroundColor: "#121212",
     marginLeft: 20,
     marginRight: 20,
     borderRadius: 20,
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     position: 'absolute',
-    backgroundColor: '#000',
+    backgroundColor: "#121212",
     opacity: 0.9,
     alignItems: 'center',
     elevation: 1,

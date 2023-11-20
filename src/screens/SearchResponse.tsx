@@ -185,7 +185,7 @@ export default function SearchResponse({ navigation, route }) {
     const tabBarStyles = StyleSheet.create({
       tabContainer: {
         height: 40,
-        backgroundColor: '#000',
+        backgroundColor: "#121212",
         width: '90%',
         marginLeft: '5%',
         shadowOffset: { height: 0, width: 0 },
@@ -213,7 +213,7 @@ export default function SearchResponse({ navigation, route }) {
       }
     });
     return (
-      <View style={{ backgroundColor: '#000' }}>
+      <View style={{ backgroundColor: "#121212" }}>
         <TabBar
           {...props}
           indicatorStyle={tabBarStyles.indicator}
@@ -279,12 +279,12 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#000',
+    backgroundColor: "#121212",
   },
   header: {
     width: '100%',
     height: 50,
-    backgroundColor: '#000',
+    backgroundColor: "#121212",
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
@@ -311,13 +311,13 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     position: 'absolute',
-    backgroundColor: '#000',
+    backgroundColor: "#121212",
     alignItems: 'center',
     elevation: 1,
   },
   tabViewContainer: {
     paddingTop: 5,
     width: '100%',
-    backgroundColor: '#000',
+    backgroundColor: "#121212",
   },
 });

@@ -74,7 +74,7 @@ export default function Chat({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#000',
+    backgroundColor: "#121212",
     width: '100%',
     height: '100%',
   },
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     width: "100%",
     height: 50,
-    backgroundColor: '#000',
+    backgroundColor: "#121212",
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxHeight: 70,
     minHeight: 70,
-    backgroundColor: '#000',
+    backgroundColor: "#121212",
     borderBottomColor: '#ccc',
     borderBottomWidth: 1,
   },

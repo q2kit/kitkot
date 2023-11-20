@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     paddingTop: 5,
     borderBottomWidth: 1,
     backgroundColor: 'transparent',
-    borderBottomColor: '#000',
+    borderBottomColor: "#000",
   },
   avatar: {
     width: 50,

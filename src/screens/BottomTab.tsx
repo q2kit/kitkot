@@ -21,7 +21,7 @@ function BottomTab() {
         tabBarStyle: {
           height: 50,
           backgroundColor: '#1e1e1e',
-          borderBlockColor: '#000',
+          borderBlockColor: "#000",
         },
         tabBarLabelStyle: {
           fontSize: 11,

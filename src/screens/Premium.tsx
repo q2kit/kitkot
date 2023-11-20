@@ -223,7 +223,7 @@ export default function Premium({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#000",
+    backgroundColor: "#121212",
     width: "100%",
     height: "100%",
   },
