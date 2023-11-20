@@ -67,8 +67,6 @@ export default function Profile({ navigation }) {
     };
     axios.post(EDIT_PROFILE_URL, fd, config)
       .then((res) => {
-        console.log(res.data);
-        
         dispatch(setUser({
           name: res.data.user.name,
           username: res.data.user.username,
@@ -78,8 +76,6 @@ export default function Profile({ navigation }) {
         navigation.goBack();
       })
       .catch((err) => {
-        console.log(err.response.data);
-        
         if (err.response.data.name) {
           setNameError(err.response.data.name);
         } else if (err.response.data.username) {

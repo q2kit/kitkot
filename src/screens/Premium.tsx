@@ -104,7 +104,6 @@ export default function Premium({ navigation }) {
       },
     }).then((response) => response.json())
       .then((json) => {
-        console.log(json);
         setPlans(json.plans);
       })
       .catch((error) => console.error(error))

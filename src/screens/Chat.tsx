@@ -1,145 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, ScrollView, TextInput } from 'react-native';
 import FriendItem from '../components/FriendItem';
 import ChatRecentItem from '../components/ChatRecentItem';
+import { GET_FRIENDS_URL, GET_RECENT_CHATS_URL } from '../config';
+import { useAppSelector } from '../redux/hooks';
 
 export default function Chat({ navigation }) {
-  const friendList = [
-    {
-      id: 1,
-      is_online: true,
-      avatar:
-        'https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B',
-    },
-    {
-      id: 1,
-      is_online: false,
-      avatar:
-        'https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B',
-    },
-    {
-      id: 1,
-      is_online: true,
-      avatar:
-        'https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B',
-    },
-    {
-      id: 1,
-      is_online: false,
-      avatar:
-        'https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B',
-    },
-    {
-      id: 1,
-      is_online: true,
-      avatar:
-        'https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B',
-    },
-    {
-      id: 1,
-      is_online: false,
-      avatar:
-        'https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B',
-    },
-    {
-      id: 1,
-      is_online: true,
-      avatar:
-        'https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B',
-    },
-  ];
-  const getRecentMessage = [
-    {
-      name: 'Nguyen Van A',
-      avatar:
-        'https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B',
-      lastMessage: {
-        message: 'HelloHelloHelloHelloHelloHello',
-        datetime: '2021-07-01 10:00:00',
+  const user = useAppSelector(state => state.user);
+  const [friendList, setFriendList] = useState([]);
+
+  useEffect(() => {
+    fetch(GET_FRIENDS_URL, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + user.accessToken,
       },
-    },
-    {
-      name: 'Nguyen Van A',
-      avatar:
-        'https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B',
-      lastMessage: {
-        message: 'Hello',
-        datetime: '2021-07-01 10:00:00',
+    }).then((response) => response.json())
+      .then((json) => {
+        setFriendList(json.friends);
+      })
+      .catch((error) => console.error(error));
+  }, []);
+
+  const [getRecentMessage, setRecentMessage] = useState([]);
+
+  useEffect(() => {
+    fetch(GET_RECENT_CHATS_URL, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + user.accessToken,
       },
-    },
-    {
-      name: 'Nguyen Van A',
-      avatar:
-        'https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B',
-      lastMessage: {
-        message: 'Hello',
-        datetime: '2021-07-01 10:00:00',
-      },
-    },
-    {
-      name: 'Nguyen Van A',
-      avatar:
-        'https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B',
-      lastMessage: {
-        message: 'Hello',
-        datetime: '2021-07-01 10:00:00',
-      },
-    },
-    {
-      name: 'Nguyen Van A',
-      avatar:
-        'https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B',
-      lastMessage: {
-        message: 'Hello',
-        datetime: '2021-07-01 10:00:00',
-      },
-    },
-    {
-      name: 'Nguyen Van A',
-      avatar:
-        'https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B',
-      lastMessage: {
-        message: 'Hello',
-        datetime: '2021-07-01 10:00:00',
-      },
-    },
-    {
-      name: 'Nguyen Van A',
-      avatar:
-        'https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B',
-      lastMessage: {
-        message: 'Hello',
-        datetime: '2021-07-01 10:00:00',
-      },
-    },
-    {
-      name: 'Nguyen Van A',
-      avatar:
-        'https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B',
-      lastMessage: {
-        message: 'Hello',
-        datetime: '2021-07-01 10:00:00',
-      },
-    },
-    {
-      name: 'Nguyen Van A',
-      avatar:
-        'https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B',
-      lastMessage: {
-        message: 'Hello',
-        datetime: '2021-07-01 10:00:00',
-      },
-    },
-    {
-      name: 'Nguyen Van A',
-      avatar:
-        'https://scontent-hkg4-1.xx.fbcdn.net/v/t1.6435-9/36370026_2103135646630625_4956188102608551936_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=be3454&_nc_ohc=FmG4BOEqPP4AX8GS4DN&_nc_ht=scontent-hkg4-1.xx&_nc_e2o=f&oh=00_AfCRywCdcflMl4hIC51MZ2DI1jgG70U-ikcJKHPhcW1peQ&oe=6553293B',
-      lastMessage: {
-        message: 'Hello',
-        datetime: '2021-07-01 10:00:00',
-      },
-    },
-  ];
+    }).then((response) => response.json())
+      .then((json) => {
+        setRecentMessage(json.recent_chats);
+      })
+      .catch((error) => console.error(error));
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.search}>
@@ -154,7 +53,11 @@ export default function Chat({ navigation }) {
         showsHorizontalScrollIndicator={false}
         style={styles.scrollViewFriendActive}>
         {friendList.map((friend, index) => (
-          <FriendItem key={index} friend={friend} onPress={() => { }} />
+          <FriendItem
+            key={index}
+            friend={friend}
+            onPress={() => navigation.navigate('ChatDetailModal', { friend })}
+          />
         ))}
       </ScrollView>
       <ScrollView

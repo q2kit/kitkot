@@ -2,12 +2,12 @@ import React from 'react';
 import { Image, View, Text, Pressable, StyleSheet } from 'react-native';
 
 export default function MessageItem({ message }: { message: any }) {
-  const isSend = message.isSend;
+  const created_by_self = message.created_by_self;
   return (
     <View
       style={[
         styles.root,
-        isSend ? styles.myMessageWrap : styles.otherMessageWrap,
+        created_by_self ? styles.myMessageWrap : styles.otherMessageWrap,
       ]}>
       <Image
         style={styles.avatar}
@@ -19,13 +19,12 @@ export default function MessageItem({ message }: { message: any }) {
         <Pressable
           style={[
             styles.message,
-            isSend ? styles.myMessage : styles.otherMessage,
-            message.isLoading ? { opacity: 0.4 } : null,
+            created_by_self ? styles.myMessage : styles.otherMessage,
           ]}>
-          {message.text && (
+          {message.content && (
             <Text
-              style={isSend ? styles.textMyMessage : styles.textOtherMessage}>
-              {message.text}
+              style={created_by_self ? styles.textMyMessage : styles.textOtherMessage}>
+              {message.content}
             </Text>
           )}
         </Pressable>

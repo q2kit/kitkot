@@ -9,7 +9,7 @@ export default function ChatRecentItem({ friend }) {
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={() => navigation.navigate('ChatDetailModal')}>
+      onPress={() => navigation.navigate('ChatDetailModal', { friend })}>
       <Image style={styles.avatar} source={{ uri: friend.avatar }} />
       <Text style={styles.name}>{friend.name}</Text>
       <View style={styles.messageContainer}>

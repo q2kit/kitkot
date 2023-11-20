@@ -35,8 +35,6 @@ export default function WithdrawModal({ visible, onClose }) {
       body: fd,
     }).then((response) => response.json())
       .then((json) => {
-        console.log(json);
-        
         setLoading(false);
         if (json.success) {
           ToastAndroid.show(json.message, ToastAndroid.SHORT);
@@ -49,7 +47,6 @@ export default function WithdrawModal({ visible, onClose }) {
       })
       .catch((error) => {
         setLoading(false);
-        console.error(error);
       });
   }
 

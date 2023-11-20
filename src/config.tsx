@@ -28,3 +28,6 @@ export const GET_PREMIUM_PLANS = joinPaths(HOST_API, "premium-plans/");
 export const CONFIRM_PREMIUM = joinPaths(HOST_API, "confirm-premium/");
 export const TOPUP_URL = joinPaths(HOST_API, "top-up/");
 export const WITHDRAW_URL = joinPaths(HOST_API, "withdraw/");
+export const GET_MESSAGE_URL = joinPaths(HOST_API, "messages/");
+export const GET_FRIENDS_URL = joinPaths(HOST_API, "friends-list/");
+export const GET_RECENT_CHATS_URL = joinPaths(HOST_API, "recent-chats/");
