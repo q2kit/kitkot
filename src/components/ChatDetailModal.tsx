@@ -5,23 +5,24 @@ import {
   VirtualizedList,
   TextInput
 } from 'react-native';
-import { useAppSelector } from '../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import useFirstRender from '../utils/useFirstRender';
 import MessageItem from './MessageItem';
 import { IconButton } from 'react-native-paper';
 import { GET_MESSAGE_URL } from '../config';
 import { setInChatScreen } from '../redux/slices/InChatScreenSlice';
+import { setMessage } from '../redux/slices/MessageSlice';
 
 export default function ChatDetailModal({ route }) {
   const user = useAppSelector(state => state.user);
 
   const isFirstRender = useFirstRender();
-  const notification = useAppSelector(state => state.notification);
+  const message = useAppSelector(state => state.message);
   const [messageList, setMessageList] = useState([]);
+  const dispatch = useAppDispatch();
   const friend = route.params.friend;
-  console.log("friend", friend);
 
-  setInChatScreen({ friendId: friend.id });
+  dispatch(setInChatScreen({ friendId: friend.id }));
 
   useEffect(() => {
     fetch(GET_MESSAGE_URL + `?friend_id=${friend.id}`,
@@ -35,20 +36,30 @@ export default function ChatDetailModal({ route }) {
       .then(res => {
         setMessageList(res.messages);
       });
+
+    return () => {
+      console.log('Component is unmounted');
+      dispatch(setInChatScreen({ friendId: -1 }));
+      dispatch(setMessage({}));
+    };
   }, []);
 
   useEffect(() => {
     if (!isFirstRender) {
-      console.log("notification", notification);
-      console.log("friend", friend);
-      if (notification.from_user_id === friend.id) {
-        setMessageList(pre => {
-          pre.unshift({ id: notification.id, content: notification.body });
-          return [...pre];
-        });
+      if (message.from_user.id == friend.id) {
+        if (messageList[messageList.length - 1].id != message.id) {
+          setMessageList(pre => {
+            pre.push({
+              id: message.id,
+              content: message.message,
+              created_by_self: false,
+            });
+            return [...pre];
+          });
+        }
       }
     }
-  }, [isFirstRender, notification]);
+  }, [isFirstRender, message]);
 
   const getItem = useCallback((data: any[], index: number) => data[index], []);
   const getItemCount = useCallback((data: any[]) => data.length, []);

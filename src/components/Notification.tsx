@@ -29,24 +29,22 @@ function Notification() {
         ws.onopen = () => {
           clearReconect?.();
         };
-
         ws.onmessage = e => {
           const data = JSON.parse(e.data);
-          console.log(data);
+          // dispatch(setMessage({
+          //   id: data.message.id,
+          //   from_user: {
+          //     id: data.message.sender.id,
+          //     name: data.message.sender.name,
+          //   },
+          //   content: data.message.message,
+          //   created_at: data.message.created_at,
+          // }));
+          console.log(inChatScreen.friendId, data.message.sender.id);
           
-          // console.log(inChatScreen.friendId, data.message.from_user_id);
-          if (inChatScreen.friendId != data.message.from_user_id) {
-            showToastSuccess(data.message.title, data.message.body);
+          if (inChatScreen.friendId != data.message.sender.id) {
+            showToastSuccess(data.message.sender.name, data.message.message);
           }
-          dispatch(setMessage({
-            id: data.message.message.id,
-            from_user: {
-              id: data.message.message.from_user_id,
-              name: data.message.message.from_user_name,
-            },
-            content: data.message.message.content,
-            created_at: data.message.message.created_at,
-          }));
         };
       }
       connectSocket();
