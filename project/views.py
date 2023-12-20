@@ -36,6 +36,8 @@ from .func import (
     upload_file_to_cloud,
     upload_file_to_local,
     user_top_up,
+    user_withdraw,
+    send_message_funk,
 )
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
@@ -662,6 +664,15 @@ def like_toggle(request):
     watched.liked = not watched.liked
     watched.save()
 
+    if watched.liked:
+        send_message_funk(
+            message={
+                "title": f"{request.user.name} liked your video",
+                "type": "notification",
+            },
+            receivers=[video.owner.id],
+        )
+
     return JsonResponse({"success": True, "message": "OK", "liked": watched.liked})
 
 
@@ -682,6 +693,15 @@ def follow_toggle(request):
     else:
         request.user.following.add(other_user)
         followed = True
+
+    if followed:
+        send_message_funk(
+            message={
+                "title": f"{request.user.name} followed you",
+                "type": "notification",
+            },
+            receivers=[other_user.id],
+        )
 
     return JsonResponse({"success": True, "message": "OK", "followed": followed})
 
@@ -704,6 +724,15 @@ def post_comment(request):
         owner=request.user,
         video=video,
         content=content,
+    )
+
+    send_message_funk(
+        message={
+            "title": f"{request.user.name} commented on your video",
+            "body": f"{content}",
+            "type": "notification",
+        },
+        receivers=[video.owner.id],
     )
 
     return JsonResponse(
@@ -756,34 +785,54 @@ def send_message(request):
             {"success": False, "message": "Invalid receiver or content"}
         )
 
-    Message.objects.create(
+    message = Message.objects.create(
         sender=request.user,
         receiver=receiver,
         content=content,
     )
 
+    send_message_funk(
+        message={
+            "id": message.id,
+            "message": message.content,
+            "sender": {
+                "id": request.user.id,
+                "name": request.user.name,
+            },
+            "type": "message",
+            "created_at": str(message.created_at),
+        },
+        receivers=[receiver.id],
+    )
+
     return JsonResponse(
         {
             "success": True,
-            "message": "Message sent",
+            "message": {
+                "id": message.id,
+                "content": message.content,
+                "created_by_self": True,
+                "created_at": message.created_at,
+        }
         }
     )
 
 
 @auth_pass(["GET"])
-def get_messages(request, receiver_id):
+def get_messages(request):
     try:
-        receiver = User.objects.get(pk=receiver_id)
+        friend = User.objects.get(pk=request.GET["friend_id"])
     except Exception:
-        return JsonResponse({"success": False, "message": "Invalid receiver"})
+        return JsonResponse({"success": False, "message": "Invalid friend"})
 
     messages = (
         Message.objects.filter(
-            Q(sender=request.user, receiver=receiver)
-            | Q(sender=receiver, receiver=request.user)
+            Q(sender=request.user, receiver=friend)
+            | Q(sender=friend, receiver=request.user)
         )
-        .order_by("id")
+        .order_by("-id")
         .values(
+            "id",
             "content",
             "sender_id",
             "created_at",
@@ -792,6 +841,7 @@ def get_messages(request, receiver_id):
 
     messages = [
         {
+            "id": message["id"],
             "content": message["content"],
             "created_by_self": message["sender_id"] == request.user.id,
             "created_at": message["created_at"].strftime("%d/%m/%Y %H:%M:%S"),
@@ -819,7 +869,12 @@ def watch_video(request, video_id):
     except Exception:
         return JsonResponse({"success": False, "message": "Video not found"})
 
-    Watched.objects.get_or_create(user=request.user, video=video)
+    _, created = Watched.objects.get_or_create(user=request.user, video=video)
+
+    if created:
+        owner = video.owner
+        owner.balance += 1
+        owner.save()
 
     return JsonResponse({"success": True, "message": "OK"})
 
@@ -1191,7 +1246,7 @@ def top_up(request):
     try:
         user_top_up(amount=amount, card=card)
     except Exception as e:
-        return JsonResponse({"success": False, "message": str(e)}, status=500)
+        return JsonResponse({"success": False, "message": str(e)}, status=400)
 
     BalanceLog.objects.create(
         user=request.user,
@@ -1209,5 +1264,109 @@ def top_up(request):
             "user": {
                 "balance": request.user.balance,
             },
+        }
+    )
+
+
+@auth_pass(["POST"])
+def withdraw(request):
+    try:
+        amount = int(request.POST["amount"])
+        email = request.POST["email"]
+    except Exception:
+        return JsonResponse({"success": False, "message": "Invalid amount"}, status=400)
+    
+    if request.user.balance < amount:
+        return JsonResponse({"success": False, "message": "Not enough money"}, status=400)
+    
+    try:
+        user_withdraw(amount=amount, email=email)
+    except Exception as e:
+        return JsonResponse({"success": False, "message": str(e)}, status=400)
+    
+    BalanceLog.objects.create(
+        user=request.user,
+        amount=-amount,
+        description="Withdraw",
+    )
+
+    request.user.balance -= amount
+    request.user.save()
+
+    return JsonResponse(
+        {
+            "success": True,
+            "message": "Withdraw success",
+            "user": {
+                "balance": request.user.balance,
+            },
+        }
+    )
+
+
+@auth_pass(["GET"])
+def get_friends_list(request):
+    friends = (
+        request.user.following
+        .filter(following__id=request.user.id)
+        .values(
+            "id",
+            "username",
+            "name",
+            "avatar",
+            "is_premium",
+        )
+    )
+
+    return JsonResponse(
+        {
+            "success": True,
+            "friends": list(friends),
+        }
+    )
+
+
+@auth_pass(["GET"])
+def get_recent_chats(request):
+    friends = (
+        request.user.following
+        .filter(following__id=request.user.id)
+        .values(
+            "id",
+            "username",
+            "name",
+            "avatar",
+            "is_premium",
+        )
+    )
+
+    recent_chats = []
+
+    for friend in friends:
+        last_message = (
+            Message.objects.filter(
+                Q(sender=request.user, receiver_id=friend["id"])
+                | Q(sender_id=friend["id"], receiver=request.user)
+            )
+            .order_by("-id")
+            .first()
+        )
+        if last_message:
+            recent_chats.append(
+                {
+                    "id": friend["id"],
+                    "name": friend["name"],
+                    "avatar": friend["avatar"],
+                    "lastMessage": {
+                        "message": last_message.content,
+                        "datetime": last_message.created_at,
+                    },
+                }
+            )
+
+    return JsonResponse(
+        {
+            "success": True,
+            "recent_chats": recent_chats,
         }
     )

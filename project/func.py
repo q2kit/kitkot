@@ -13,8 +13,10 @@ import jwt
 import datetime
 import boto3
 from uuid import uuid4
+import json
 import ffmpeg
 import traceback
+from websockets.sync.client import connect
 
 
 def validate_email(email):
@@ -101,14 +103,14 @@ def generate_access_token(uid):
 
 
 def generate_ws_access_token(id):
-    SECRET_KEY = os.environ.get("WS_SECRET_KEY")
+    WS_SECRET_KEY = os.environ.get("WS_SECRET_KEY")
     return jwt.encode(
         {
             "id": id,
             "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=30),
             "iat": datetime.datetime.utcnow(),
         },
-        SECRET_KEY,
+        WS_SECRET_KEY,
         algorithm="HS256",
     )
 
@@ -238,16 +240,88 @@ def user_top_up(amount, card):
     except Exception as e:
         raise Exception("Card's information is invalid, please check again!")
     
+    try:
+        if status == "APPROVED":
+            # capture order
+            capture_order_response = requests.post(
+                os.getenv("PAYPAL_CAPTURE_ORDER_URL") % (order_id),
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {access_token}",
+                },
+            )
+            if capture_order_response.json()["status"] != "COMPLETED":
+                raise Exception("Cannot capture order, please contact the administrator!")
+        else:
+            raise Exception("Card's information is invalid, please check again!")
+    except Exception as e:
+        raise Exception("Cannot capture order, please contact the administrator!")
 
-    # if status == "APPROVED":
-    #     # capture order
-    #     capture_order_response = requests.post(
-    #         os.getenv("PAYPAL_CAPTURE_ORDER_URL") % (order_id),
-    #         headers={
-    #             "Content-Type": "application/json",
-    #             "Authorization": f"Bearer {access_token}",
-    #         },
-    #     )
-    #     return capture_order_response.json()["status"] == "COMPLETED"
-    # else:
-    #     ...
+
+def user_withdraw(amount, email):
+    try:
+        # get access token
+        get_access_token_response = requests.post(
+            os.getenv("PAYPAL_AUTH_URL"),
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            auth=(
+                os.getenv("PAYPAL_CLIENT_ID"),
+                os.getenv("PAYPAL_CLIENT_SECRET"),
+            ),
+            data="grant_type=client_credentials",
+        )
+        access_token = get_access_token_response.json()["access_token"]
+    except Exception as e:
+        raise Exception("Cannot get access token")
+    
+    try:
+        print("access_token:", access_token)
+        # create payout
+        create_payout_response = requests.post(
+            os.getenv("PAYPAL_CREATE_PAYOUT_URL"),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {access_token}",
+            },
+            json={
+                "sender_batch_header": {
+                    "sender_batch_id": str(uuid4().hex),
+                    "email_subject": "You have a payout!",
+                },
+                "items": [
+                    {
+                        "recipient_type": "EMAIL",
+                        "amount": {
+                            "value": amount,
+                            "currency": "USD",
+                        },
+                        "receiver": email,
+                        "note": "Withdraw money from KitKot, thank you for using our service!",
+                        "sender_item_id": str(uuid4().hex),
+                    }
+                ],
+            },
+        )
+        print(create_payout_response.json())
+        status = create_payout_response.json()["batch_header"]["batch_status"]
+    except Exception as e:
+        raise Exception("Cannot create payout, please contact the administrator!")
+
+
+def send_message_funk(message, receivers):
+    WS_SECRET_KEY = os.environ.get("WS_SECRET_KEY")
+    WS_PROJECT_ID = os.environ.get("WS_PROJECT_ID")
+    token = jwt.encode(
+        {"id": "system"},
+        WS_SECRET_KEY,
+        algorithm="HS256",
+    )
+    ws_url = f"wss://ws-service.q2k.dev/ws/{WS_PROJECT_ID}/{token}"
+    with connect(ws_url) as websocket:
+        message = {
+            "message": message,
+            "receivers": receivers,
+        }
+        websocket.send(json.dumps(message))

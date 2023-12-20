@@ -39,6 +39,10 @@ from project.views import (
     get_premium_plans,
     confirm_premium,
     top_up,
+    withdraw,
+    get_friends_list,
+    get_recent_chats,
+    follow_toggle,
 )
 
 urlpatterns = [
@@ -63,11 +67,15 @@ urlpatterns = [
 
     path('api/watch_video/<int:video_id>', watch_video),
     path('api/like-toggle/', like_toggle),
+    path('api/follow-toggle/', follow_toggle),
 
     path('api/send-message/', send_message),
-    path('api/<int:receiver_id>/messages/', get_messages),
+    path('api/messages/', get_messages),
+    path('api/friends-list/', get_friends_list),
+    path('api/recent-chats/', get_recent_chats),
 
     path('api/premium-plans/', get_premium_plans),
     path('api/confirm-premium/', confirm_premium),
     path('api/top-up/', top_up),
+    path('api/withdraw/', withdraw),
 ]
