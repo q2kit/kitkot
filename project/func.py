@@ -150,7 +150,7 @@ def upload_video_to_s3(video):
 
 
 def upload_file_to_cloud(file):
-    url = "http://localhost:8080/"
+    url = "https://uploader.q2k.dev"
     files = {
         "file": file,
     }
@@ -318,7 +318,7 @@ def send_message_funk(message, receivers):
         WS_SECRET_KEY,
         algorithm="HS256",
     )
-    ws_url = f"wss://ws-service.q2k.dev/ws/{WS_PROJECT_ID}/{token}"
+    ws_url = os.environ.get("WS_URL")%(WS_PROJECT_ID, token)
     with connect(ws_url) as websocket:
         message = {
             "message": message,
